@@ -18,7 +18,7 @@ func TestReadConfig_ReadsValidFile(t *testing.T) {
 	// write test data to the file
 	expected := Config{
 		CurrentUsername: "mays",
-		DatabaseURL: "postgres://localhost:5432/mydb",
+		DatabaseURL:     "postgres://localhost:5432/mydb",
 	}
 	data, _ := json.Marshal(expected)
 	err := os.WriteFile(tempFilePath, data, 0644)

@@ -27,3 +27,10 @@ func ReadConfig(path string) (Config, error) {
 	return config, nil
 }
 
+func GetConfigFilePath() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(homeDir, ConfigFileName), nil
+}
