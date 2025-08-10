@@ -15,7 +15,7 @@ type ConfigService struct {
 }
 
 func NewConfigService(filePath string) (*ConfigService, error) {
-	cfg, err := ReadConfig(filePath)
+	cfg, err := readConfig(filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -35,10 +35,10 @@ func (cfgService *ConfigService) SetUser(username string) {
 }
 
 func (cfgService *ConfigService) Save() error {
-	return WriteConfig(cfgService.cfg, cfgService.configFilePath)
+	return writeConfig(cfgService.cfg, cfgService.configFilePath)
 }
 
-func ReadConfig(path string) (config, error) {
+func readConfig(path string) (config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return config{}, err
@@ -51,7 +51,7 @@ func ReadConfig(path string) (config, error) {
 	return cfg, nil
 }
 
-func WriteConfig(cfg config, path string) error {
+func writeConfig(cfg config, path string) error {
 	data, err := json.Marshal(cfg)
 	if err != nil {
 		return err

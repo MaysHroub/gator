@@ -22,7 +22,7 @@ func TestReadConfig_ReadsValidFile(t *testing.T) {
 	err := os.WriteFile(tempFilePath, data, 0644)
 	require.NoError(t, err)
 
-	output, err := ReadConfig(tempFilePath)
+	output, err := readConfig(tempFilePath)
 	require.NoError(t, err)
 
 	assert.Equal(t, expected, output)
@@ -37,9 +37,9 @@ func TestWriteConfig_WritesValidConfig(t *testing.T) {
 		DatabaseURL:     "postgres://localhost:5432/mydb",
 	}
 
-	WriteConfig(cfg, tempFilePath)
+	writeConfig(cfg, tempFilePath)
 
-	output, err := ReadConfig(tempFilePath)
+	output, err := readConfig(tempFilePath)
 	require.NoError(t, err)
 
 	assert.Equal(t, cfg, output)
@@ -53,7 +53,7 @@ func TestConfigService_SetUserAndSave(t *testing.T) {
 	tempDir := t.TempDir()
 	tempFilePath := filepath.Join(tempDir, "testconfig.json")
 
-	WriteConfig(config{}, tempFilePath)
+	writeConfig(config{}, tempFilePath)
 
 	cfgService, err := NewConfigService(tempFilePath)
 	require.NoError(t, err)
@@ -64,7 +64,7 @@ func TestConfigService_SetUserAndSave(t *testing.T) {
 	err = cfgService.Save()
 	require.NoError(t, err)
 
-	cfgRead, err := ReadConfig(tempFilePath)
+	cfgRead, err := readConfig(tempFilePath)
 	require.NoError(t, err)
 
 	assert.Equal(t, expectedUsername, cfgRead.CurrentUsername)
