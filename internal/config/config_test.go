@@ -14,7 +14,7 @@ func TestReadConfig_ReadsValidFile(t *testing.T) {
 	tempDir := t.TempDir()
 	tempFilePath := filepath.Join(tempDir, "testconfig.json")
 
-	expected := config{
+	expected := Config{
 		CurrentUsername: "mays",
 		DatabaseURL:     "postgres://localhost:5432/mydb",
 	}
@@ -32,12 +32,12 @@ func TestWriteConfig_WritesValidConfig(t *testing.T) {
 	tempDir := t.TempDir()
 	tempFilePath := filepath.Join(tempDir, "testconfig.json")
 
-	cfg := config{
+	cfg := Config{
 		CurrentUsername: "mays",
 		DatabaseURL:     "postgres://localhost:5432/mydb",
 	}
 
-	writeConfig(cfg, tempFilePath)
+	WriteConfig(cfg, tempFilePath)
 
 	output, err := readConfig(tempFilePath)
 	require.NoError(t, err)
@@ -53,7 +53,7 @@ func TestConfigService_SetUserAndSave(t *testing.T) {
 	tempDir := t.TempDir()
 	tempFilePath := filepath.Join(tempDir, "testconfig.json")
 
-	writeConfig(config{}, tempFilePath)
+	WriteConfig(Config{}, tempFilePath)
 
 	cfgService, err := NewConfigService(tempFilePath)
 	require.NoError(t, err)

@@ -19,12 +19,14 @@ func TestCreatingCommandWithParseCliArgs_ValidParsing(t *testing.T) {
 
 func TestStateCreation_ValidCreation(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "statetest.json")
+	config.WriteConfig(config.Config{}, path)
+	
 	cfgService, err := config.NewConfigService(path)
 	require.NoError(t, err)
 	
 	cfgService.SetUser("mays-alreem")
 	state := state {
-		cfgService: &cfgService,
+		cfgService: cfgService,
 	}
 
 	assert.Equal(t, cfgService, state.cfgService)
