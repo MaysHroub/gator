@@ -23,7 +23,7 @@ func TestStateCreation_ValidCreation(t *testing.T) {
 
 	cfgService, err := config.NewConfigService(path)
 	require.NoError(t, err)
-	
+
 	cfgService.SetUser("mays-alreem")
 	state := NewState(cfgService)
 
@@ -33,15 +33,15 @@ func TestStateCreation_ValidCreation(t *testing.T) {
 func TestCommandsRegistryAndRun_ValidRegistryAndRun(t *testing.T) {
 	cmdName := "login"
 	called := false
-	cmdHandler := func (st *state, cmd command) error {
+	cmdHandler := func(st *state, cmd command) error {
 		called = true
 		return nil
 	}
 
 	commands := NewCommands()
-	commands.register(cmdName, cmdHandler)
+	commands.Register(cmdName, cmdHandler)
 
-	err := commands.run(&state{}, command{name: cmdName})
+	err := commands.Run(&state{}, command{name: cmdName})
 	require.NoError(t, err)
 
 	assert.Equal(t, true, called)

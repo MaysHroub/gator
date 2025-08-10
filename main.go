@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"github/MaysHroub/gator/cmd"
 	"github/MaysHroub/gator/internal/config"
 )
 
@@ -12,9 +14,22 @@ func main() {
 		fmt.Printf("failed to instantiate config service: %v\n", err)
 		return
 	}
+	st := cmd.NewState(cfgService)
 
-	cfgService.SetUser("mays-alreem")
-	cfgService.Save()
+	commands := cmd.NewCommands()
+	commands.Register("login", cmd.HandleLogin)
 
-	fmt.Println(cfgService.Cfg)
+	if len(os.Args) < 2 {
+		fmt.Printf("no enough arguments; want at least 2, but got %v\n", len(os.Args))
+		os.Exit(1)
+	}
+
+	cmnd := cmd.ParseCliArgs(os.Args...)
+
+	err = commands.Run(&st, cmnd)
+	if err != nil {
+		fmt.Printf("command execution failed: %v\n", err)
+		os.Exit(1)
+	}
+	os.Exit(0)
 }

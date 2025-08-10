@@ -13,11 +13,11 @@ func NewCommands() commands {
 	}
 }
 
-func (c *commands) register(cmdName string, cmdHandler func(*state, command) error) {
+func (c *commands) Register(cmdName string, cmdHandler func(*state, command) error) {
 	c.cmds[cmdName] = cmdHandler
 }
 
-func (c *commands) run(st *state, cmd command) error {
+func (c *commands) Run(st *state, cmd command) error {
 	handler, exists := c.cmds[cmd.name]
 	if !exists {
 		return fmt.Errorf("no such command exists: %s", cmd.name)

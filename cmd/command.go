@@ -11,7 +11,7 @@ func ParseCliArgs(args ...string) command {
 		return command{}
 	}
 	return command{
-		name: args[0],
-		args: args[1:],
+		name: args[1],
+		args: args[2:],
 	}
 }
