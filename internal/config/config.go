@@ -10,18 +10,18 @@ import (
 const ConfigFileName = ".gatorconfig.json"
 
 type ConfigService struct {
-	configFilePath string
-	cfg            Config
+	ConfigFilePath string
+	Cfg            Config
 }
 
 func NewConfigService(filePath string) (*ConfigService, error) {
-	cfg, err := readConfig(filePath)
+	cfg, err := ReadConfig(filePath)
 	if err != nil {
 		return nil, err
 	}
 	return &ConfigService{
-		configFilePath: filePath,
-		cfg:            cfg,
+		ConfigFilePath: filePath,
+		Cfg:            cfg,
 	}, nil
 }
 
@@ -31,18 +31,14 @@ type Config struct {
 }
 
 func (cfgService *ConfigService) SetUser(username string) {
-	cfgService.cfg.CurrentUsername = username
-}
-
-func (cfgService *ConfigService) GetConfig() Config {
-	return cfgService.cfg
+	cfgService.Cfg.CurrentUsername = username
 }
 
 func (cfgService *ConfigService) Save() error {
-	return WriteConfig(cfgService.cfg, cfgService.configFilePath)
+	return WriteConfig(cfgService.Cfg, cfgService.ConfigFilePath)
 }
 
-func readConfig(path string) (Config, error) {
+func ReadConfig(path string) (Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return Config{}, err

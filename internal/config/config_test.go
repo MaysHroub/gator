@@ -22,7 +22,7 @@ func TestReadConfig_ReadsValidFile(t *testing.T) {
 	err := os.WriteFile(tempFilePath, data, 0644)
 	require.NoError(t, err)
 
-	output, err := readConfig(tempFilePath)
+	output, err := ReadConfig(tempFilePath)
 	require.NoError(t, err)
 
 	assert.Equal(t, expected, output)
@@ -39,7 +39,7 @@ func TestWriteConfig_WritesValidConfig(t *testing.T) {
 
 	WriteConfig(cfg, tempFilePath)
 
-	output, err := readConfig(tempFilePath)
+	output, err := ReadConfig(tempFilePath)
 	require.NoError(t, err)
 
 	assert.Equal(t, cfg, output)
@@ -64,7 +64,7 @@ func TestConfigService_SetUserAndSave(t *testing.T) {
 	err = cfgService.Save()
 	require.NoError(t, err)
 
-	cfgRead, err := readConfig(tempFilePath)
+	cfgRead, err := ReadConfig(tempFilePath)
 	require.NoError(t, err)
 
 	assert.Equal(t, expectedUsername, cfgRead.CurrentUsername)

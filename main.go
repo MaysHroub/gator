@@ -16,5 +16,5 @@ func main() {
 	cfgService.SetUser("mays-alreem")
 	cfgService.Save()
 
-	fmt.Println(cfgService.GetConfig())
+	fmt.Println(cfgService.Cfg)
 }
