@@ -27,7 +27,7 @@ func TestStateCreation_ValidCreation(t *testing.T) {
 	cfgService.SetUser("mays-alreem")
 	state := NewState(cfgService)
 
-	assert.Equal(t, cfgService, state.cfgService)
+	assert.Equal(t, cfgService, state.cfg)
 }
 
 func TestCommandsRegistryAndRun_ValidRegistryAndRun(t *testing.T) {
@@ -56,10 +56,10 @@ func TestLoginHandler_ValidLogin(t *testing.T) {
 
 	cmd := command{
 		name: "login",
-		args: []string{"login", "mays-alreem"},
+		args: []string{"mays-alreem"},
 	}
 
-	err := LoginHandler(&st, cmd)
+	err := HandleLogin(&st, cmd)
 	require.NoError(t, err)
 
 	mockConfig.AssertCalled(t, "SetUser", "mays-alreem")
