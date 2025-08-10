@@ -12,9 +12,9 @@ import (
 
 func TestReadConfig_ReadsValidFile(t *testing.T) {
 	tempDir := t.TempDir()
-	tempFilePath := filepath.Join(tempDir, "testread.json")
+	tempFilePath := filepath.Join(tempDir, "testconfig.json")
 
-	expected := Config{
+	expected := config{
 		CurrentUsername: "mays",
 		DatabaseURL:     "postgres://localhost:5432/mydb",
 	}
@@ -30,9 +30,9 @@ func TestReadConfig_ReadsValidFile(t *testing.T) {
 
 func TestWriteConfig_WritesValidConfig(t *testing.T) {
 	tempDir := t.TempDir()
-	tempFilePath := filepath.Join(tempDir, "testread.json")
+	tempFilePath := filepath.Join(tempDir, "testconfig.json")
 
-	cfg := Config{
+	cfg := config{
 		CurrentUsername: "mays",
 		DatabaseURL:     "postgres://localhost:5432/mydb",
 	}
@@ -51,18 +51,21 @@ func TestConfigService_SetUserAndSave(t *testing.T) {
 	// save it
 	// read the config and check
 	tempDir := t.TempDir()
-	tempFilePath := filepath.Join(tempDir, "testread.json")
+	tempFilePath := filepath.Join(tempDir, "testconfig.json")
 
-	cfgService := NewConfigService(tempFilePath)
+	WriteConfig(config{}, tempFilePath)
+
+	cfgService, err := NewConfigService(tempFilePath)
+	require.NoError(t, err)
 
 	expectedUsername := "mays-alreem"
 	cfgService.SetUser(expectedUsername)
 
-	err := cfgService.Save()
+	err = cfgService.Save()
 	require.NoError(t, err)
 
-	cfg, err := ReadConfig(tempFilePath)
+	cfgRead, err := ReadConfig(tempFilePath)
 	require.NoError(t, err)
 
-	assert.Equal(t, expectedUsername, cfg.CurrentUsername)
+	assert.Equal(t, expectedUsername, cfgRead.CurrentUsername)
 }
