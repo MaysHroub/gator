@@ -35,6 +35,11 @@ func GetConfigFilePath() (string, error) {
 	return filepath.Join(homeDir, ConfigFileName), nil
 }
 
+func (cfg *Config) SetUser(username string) {
+	cfg.CurrentUsername = username
+}
+
+
 func WriteConfig(cfg Config, path string) error {
 	data, err := json.Marshal(cfg)
 	if err != nil {
