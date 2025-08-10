@@ -9,37 +9,49 @@ import (
 
 const ConfigFileName = ".gatorconfig.json"
 
-type Config struct {
+type ConfigService struct {
+	configFilePath string
+	cfg            config
+}
+
+func NewConfigService(filePath string) (*ConfigService, error) {
+	cfg, err := ReadConfig(filePath)
+	if err != nil {
+		return nil, err
+	}
+	return &ConfigService{
+		configFilePath: filePath,
+		cfg: cfg,
+	}, nil
+} 
+
+type config struct {
 	DatabaseURL     string `json:"db_url"`
 	CurrentUsername string `json:"current_user_name"`
 }
 
-func (cfg *Config) SetUser(username string) {
-	cfg.CurrentUsername = username
+func (cfgService *ConfigService) SetUser(username string) {
+	cfgService.cfg.CurrentUsername = username
 }
 
-func ReadConfig(path string) (Config, error) {
+func (cfgService *ConfigService) Save() error {
+	return WriteConfig(cfgService.cfg, cfgService.configFilePath)
+}
+
+func ReadConfig(path string) (config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return Config{}, err
+		return config{}, err
 	}
 
-	var config Config
-	if err = json.Unmarshal(data, &config); err != nil {
-		return Config{}, err
+	var cfg config
+	if err = json.Unmarshal(data, &cfg); err != nil {
+		return config{}, err
 	}
-	return config, nil
+	return cfg, nil
 }
 
-func GetConfigFilePath() (string, error) {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(homeDir, ConfigFileName), nil
-}
-
-func WriteConfig(cfg Config, path string) error {
+func WriteConfig(cfg config, path string) error {
 	data, err := json.Marshal(cfg)
 	if err != nil {
 		return err
@@ -48,4 +60,12 @@ func WriteConfig(cfg Config, path string) error {
 		return err
 	}
 	return nil
+}
+
+func GetConfigFilePath() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(homeDir, ConfigFileName), nil
 }
