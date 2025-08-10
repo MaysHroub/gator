@@ -29,3 +29,20 @@ func TestReadConfig_ReadsValidFile(t *testing.T) {
 
 	assert.Equal(t, expected, output)
 }
+
+func TestWriteConfig_WritesValidConfig(t *testing.T) {
+	tempDir := t.TempDir()
+	tempFilePath := filepath.Join(tempDir, "testread.json")
+
+	cfg := Config{
+		CurrentUsername: "mays",
+		DatabaseURL:     "postgres://localhost:5432/mydb",
+	}
+
+	WriteConfig(cfg, tempFilePath)
+
+	output, err := ReadConfig(tempFilePath)
+	require.NoError(t, err)
+
+	assert.Equal(t, cfg, output)
+}
