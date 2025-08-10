@@ -18,7 +18,7 @@ func TestCreatingCommandWithParseCliArgs_ValidParsing(t *testing.T) {
 }
 
 func TestStateCreation_ValidCreation(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "statetest.json")
+	path := filepath.Join(t.TempDir(), "test.json")
 	config.WriteConfig(config.Config{}, path)
 
 	cfgService, err := config.NewConfigService(path)
@@ -45,4 +45,23 @@ func TestCommandsRegistryAndRun_ValidRegistryAndRun(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, true, called)
+}
+
+func TestLoginHandler_ValidLogin(t *testing.T) {
+	mockConfig := config.MockConfigService{}
+	mockConfig.On("SetUser", "mays-alreem").Return()
+	mockConfig.On("Save").Return(nil)
+
+	st := NewState(&mockConfig)
+
+	cmd := command{
+		name: "login",
+		args: []string{"login", "mays-alreem"},
+	}
+
+	err := LoginHandler(&st, cmd)
+	require.NoError(t, err)
+
+	mockConfig.AssertCalled(t, "SetUser", "mays-alreem")
+	mockConfig.AssertCalled(t, "Save")
 }

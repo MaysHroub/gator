@@ -3,11 +3,11 @@ package cmd
 import "github/MaysHroub/gator/internal/config"
 
 type state struct {
-	cfgService *config.ConfigService
+	cfg config.ConfigManager
 }
 
-func NewState(cfgService *config.ConfigService) state {
+func NewState(cfgMngr config.ConfigManager) state {
 	return state{
-		cfgService: cfgService,
+		cfg: cfgMngr,
 	}
 }

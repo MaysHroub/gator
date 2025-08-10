@@ -9,6 +9,11 @@ import (
 
 const ConfigFileName = ".gatorconfig.json"
 
+type ConfigManager interface {
+	SetUser(username string)
+	Save() error
+}
+
 type ConfigService struct {
 	ConfigFilePath string
 	Cfg            Config
