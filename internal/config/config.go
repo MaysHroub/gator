@@ -34,6 +34,10 @@ func (cfgService *ConfigService) SetUser(username string) {
 	cfgService.cfg.CurrentUsername = username
 }
 
+func (cfgService *ConfigService) GetConfig() config {
+	return cfgService.cfg
+}
+
 func (cfgService *ConfigService) Save() error {
 	return writeConfig(cfgService.cfg, cfgService.configFilePath)
 }
