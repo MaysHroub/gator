@@ -25,9 +25,7 @@ func TestStateCreation_ValidCreation(t *testing.T) {
 	require.NoError(t, err)
 	
 	cfgService.SetUser("mays-alreem")
-	state := state {
-		cfgService: cfgService,
-	}
+	state := NewState(cfgService)
 
 	assert.Equal(t, cfgService, state.cfgService)
 }
