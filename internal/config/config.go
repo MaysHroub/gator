@@ -34,3 +34,14 @@ func GetConfigFilePath() (string, error) {
 	}
 	return filepath.Join(homeDir, ConfigFileName), nil
 }
+
+func WriteConfig(cfg Config, path string) error {
+	data, err := json.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+	if err = os.WriteFile(path, data, 0644); err != nil {
+		return err
+	}
+	return nil
+}
