@@ -32,7 +32,7 @@ func TestStateCreation_ValidCreation(t *testing.T) {
 	assert.Equal(t, cfgService, state.cfgService)
 }
 
-func TestCommandsRegistryAndRun(t *testing.T) {
+func TestCommandsRegistryAndRun_ValidRegistryAndRun(t *testing.T) {
 	cmdName := "login"
 	called := false
 	cmdHandler := func (st *state, cmd command) error {

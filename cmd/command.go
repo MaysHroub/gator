@@ -1,3 +1,4 @@
+// Package cmd provides command-line argument parsing and executing utilities.
 package cmd
 
 type command struct {
