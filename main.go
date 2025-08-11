@@ -40,7 +40,7 @@ func main() {
 
 	cmnd := cmd.ParseCliArgs(os.Args...)
 
-	err = commands.Run(&st, cmnd)
+	err = commands.Run(st, cmnd)
 	if err != nil {
 		fmt.Printf("command execution failed: %v\n", err)
 		os.Exit(1)

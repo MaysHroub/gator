@@ -2,10 +2,15 @@ package cmd
 
 import (
 	"github/MaysHroub/gator/internal/config"
+	"github/MaysHroub/gator/internal/database"
+	"github/MaysHroub/gator/internal/repository"
 	"path/filepath"
 	"testing"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -59,7 +64,7 @@ func TestLoginHandler_ValidLogin(t *testing.T) {
 		args: []string{"mays-alreem"},
 	}
 
-	err := HandleLogin(&st, cmd)
+	err := HandleLogin(st, cmd)
 	require.NoError(t, err)
 
 	mockConfig.AssertCalled(t, "SetUser", "mays-alreem")
@@ -67,9 +72,31 @@ func TestLoginHandler_ValidLogin(t *testing.T) {
 }
 
 func TestRegisterHandler_ValidRegister(t *testing.T) {
-	// arrange -> db connection and a username
-	// act -> register that user
-	// assert -> check that the user is added to the db
+	uid, _ := uuid.NewUUID()
+	name := "mays"
+	createdTime, updatedTime := time.Now(), time.Now()
+	user := database.User{
+		ID: uid,
+		CreatedAt: createdTime,
+		UpdatedAt: updatedTime,
+		Name: name,
+	}
+	ctx := mock.Anything
 
-	
+	mockDB := repository.MockUserStore{}
+	mockDB.
+		On("CreateUser", ctx, uid, name, createdTime, updatedTime).
+		Return(user)
+
+	st := NewState(nil, &mockDB)
+
+	cmd := command{
+		name: "register",
+		args: []string{name},
+	}
+
+	err := HandleRegister(st, cmd)
+	require.NoError(t, err)
+
+	mockDB.AssertCalled(t, "CreateUser", ctx, uid, name, createdTime, updatedTime)
 }
