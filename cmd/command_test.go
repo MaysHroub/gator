@@ -25,7 +25,7 @@ func TestStateCreation_ValidCreation(t *testing.T) {
 	require.NoError(t, err)
 
 	cfgService.SetUser("mays-alreem")
-	state := NewState(cfgService)
+	state := NewState(cfgService, nil)
 
 	assert.Equal(t, cfgService, state.cfg)
 }
@@ -52,7 +52,7 @@ func TestLoginHandler_ValidLogin(t *testing.T) {
 	mockConfig.On("SetUser", "mays-alreem").Return()
 	mockConfig.On("Save").Return(nil)
 
-	st := NewState(&mockConfig)
+	st := NewState(&mockConfig, nil)
 
 	cmd := command{
 		name: "login",
