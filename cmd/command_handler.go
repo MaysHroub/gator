@@ -1,7 +1,12 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"github/MaysHroub/gator/internal/database"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 func HandleLogin(st *state, cmd command) error {
@@ -15,6 +20,15 @@ func HandleLogin(st *state, cmd command) error {
 }
 
 func HandleRegister(st *state, cmd command) error {
-	
-	return nil
+	if len(cmd.args) == 0 {
+		return fmt.Errorf("no enough args for %s", cmd.name)
+	}
+	params := database.CreateUserParams{
+        ID:        uuid.New(),
+        Name:      cmd.args[0],
+        CreatedAt: time.Now(),
+        UpdatedAt: time.Now(),
+    }
+	_, err := st.db.CreateUser(context.Background(), params)
+	return err
 }
