@@ -15,8 +15,8 @@ import (
 )
 
 func TestCreatingCommandWithParseCliArgs_ValidParsing(t *testing.T) {
-	args := []string{"login", "username"}
-	cmd := ParseCliArgs(args...)
+	cliArgs := []string{"rn", "login", "username"}
+	cmd := ParseCliArgs(cliArgs...)
 
 	assert.Equal(t, "login", cmd.name)
 	assert.Equal(t, []string{"username"}, cmd.args)
@@ -74,14 +74,14 @@ func TestLoginHandler_ValidLogin(t *testing.T) {
 func TestRegisterHandler_ValidRegister(t *testing.T) {
 	uid, _ := uuid.NewUUID()
 	name := "mays"
-	createdTime, updatedTime := time.Now(), time.Now()
+	createdTime, updatedTime := mock.Anything, mock.Anything
+	ctx := mock.Anything
 	user := database.User{
 		ID: uid,
-		CreatedAt: createdTime,
-		UpdatedAt: updatedTime,
+		CreatedAt: time.Time{},
+		UpdatedAt: time.Time{},
 		Name: name,
 	}
-	ctx := mock.Anything
 
 	mockDB := repository.MockUserStore{}
 	mockDB.

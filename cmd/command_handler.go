@@ -13,3 +13,8 @@ func HandleLogin(st *state, cmd command) error {
 	fmt.Println("current username got updated")
 	return nil
 }
+
+func HandleRegister(st *state, cmd command) error {
+	
+	return nil
+}
