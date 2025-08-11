@@ -6,9 +6,7 @@ import (
 	"github/MaysHroub/gator/internal/repository"
 	"path/filepath"
 	"testing"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -72,21 +70,19 @@ func TestLoginHandler_ValidLogin(t *testing.T) {
 }
 
 func TestRegisterHandler_ValidRegister(t *testing.T) {
-	uid, _ := uuid.NewUUID()
 	name := "mays"
-	createdTime, updatedTime := mock.Anything, mock.Anything
-	ctx := mock.Anything
-	user := database.User{
-		ID: uid,
-		CreatedAt: time.Time{},
-		UpdatedAt: time.Time{},
-		Name: name,
-	}
+
+	nameMatcher := mock.MatchedBy(func(p database.CreateUserParams) bool {
+		return p.Name == name
+	})
 
 	mockDB := repository.MockUserStore{}
 	mockDB.
-		On("CreateUser", ctx, uid, name, createdTime, updatedTime).
-		Return(user)
+		On("CreateUser",
+        mock.Anything, // ctx
+        nameMatcher,
+    ).
+    Return(database.User{}, nil)
 
 	st := NewState(nil, &mockDB)
 
@@ -98,5 +94,9 @@ func TestRegisterHandler_ValidRegister(t *testing.T) {
 	err := HandleRegister(st, cmd)
 	require.NoError(t, err)
 
-	mockDB.AssertCalled(t, "CreateUser", ctx, uid, name, createdTime, updatedTime)
+	mockDB.AssertCalled(t, 
+		"CreateUser", 
+		mock.Anything, // ctx
+		nameMatcher,
+	)
 }
