@@ -1,5 +1,7 @@
 package main
 
+import _ "github.com/lib/pq" // importing the driver for a side effect; you won't use it
+
 import (
 	"fmt"
 	"os"
