@@ -65,3 +65,11 @@ func TestLoginHandler_ValidLogin(t *testing.T) {
 	mockConfig.AssertCalled(t, "SetUser", "mays-alreem")
 	mockConfig.AssertCalled(t, "Save")
 }
+
+func TestRegisterHandler_ValidRegister(t *testing.T) {
+	// arrange -> db connection and a username
+	// act -> register that user
+	// assert -> check that the user is added to the db
+
+	
+}

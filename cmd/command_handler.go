@@ -1,6 +1,8 @@
 package cmd
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func HandleLogin(st *state, cmd command) error {
 	if len(cmd.args) == 0 {
