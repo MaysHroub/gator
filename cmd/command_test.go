@@ -113,10 +113,13 @@ func TestRegisterHandler_ValidRegister(t *testing.T) {
 		On("CreateUser",
 			mock.Anything, // ctx
 			nameMatcher,
-		).
-		Return(database.User{}, nil)
+	).Return(database.User{}, nil)
 
-	st := NewState(nil, &mockDB)
+	mockConfig := config.MockConfigService{}
+	mockConfig.On("SetUser", name).Return()
+	mockConfig.On("Save").Return(nil)
+
+	st := NewState(&mockConfig, &mockDB)
 
 	cmd := command{
 		name: "register",
@@ -136,6 +139,8 @@ func TestRegisterHandler_ValidRegister(t *testing.T) {
 		mock.Anything, // ctx
 		name,
 	)
+	mockConfig.AssertCalled(t, "SetUser", name)
+	mockConfig.AssertCalled(t, "Save")
 }
 
 func TestRegisterHandler_InvalidRegister_NameExists(t *testing.T) {

@@ -41,7 +41,9 @@ func HandleRegister(st *state, cmd command) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("current username got registered")
+	st.cfg.SetUser(cmd.args[0])
+	st.cfg.Save()
+	fmt.Println("current username got registered and logged in")
 	return nil
 }
 
