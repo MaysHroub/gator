@@ -20,7 +20,7 @@ func TestCreatingCommandWithParseCliArgs_ValidParsing(t *testing.T) {
 	assert.Equal(t, []string{"username"}, cmd.args)
 }
 
-func TestStateCreation_ValidCreation(t *testing.T) {
+func TestStateCreationWithConfig_ValidCreation(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "test.json")
 	config.WriteConfig(config.Config{}, path)
 
