@@ -16,7 +16,7 @@ func HandleLogin(st *state, cmd command) error {
 	}
 	st.cfg.SetUser(cmd.args[0])
 	st.cfg.Save()
-	fmt.Println("current username got updated")
+	fmt.Println("current username got logged in")
 	return nil
 }
 
@@ -35,7 +35,11 @@ func HandleRegister(st *state, cmd command) error {
 		UpdatedAt: time.Now(),
 	}
 	_, err := st.db.CreateUser(ctx, params)
-	return err
+	if err != nil {
+		return err
+	}
+	fmt.Println("current username got registered")
+	return nil
 }
 
 func doesUserExist(st *state, name string) bool {

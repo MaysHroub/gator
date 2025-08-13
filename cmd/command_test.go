@@ -79,10 +79,10 @@ func TestRegisterHandler_ValidRegister(t *testing.T) {
 	mockDB := repository.MockUserStore{}
 	mockDB.
 		On("CreateUser",
-        mock.Anything, // ctx
-        nameMatcher,
-    ).
-    Return(database.User{}, nil)
+			mock.Anything, // ctx
+			nameMatcher,
+		).
+		Return(database.User{}, nil)
 
 	st := NewState(nil, &mockDB)
 
@@ -94,8 +94,8 @@ func TestRegisterHandler_ValidRegister(t *testing.T) {
 	err := HandleRegister(st, cmd)
 	require.NoError(t, err)
 
-	mockDB.AssertCalled(t, 
-		"CreateUser", 
+	mockDB.AssertCalled(t,
+		"CreateUser",
 		mock.Anything, // ctx
 		nameMatcher,
 	)
@@ -106,7 +106,7 @@ func TestRegisterHandler_InvalidRegister_NameExists(t *testing.T) {
 
 	mockDB := repository.MockUserStore{}
 	mockDB.On(
-		"GetUser", 
+		"GetUser",
 		mock.Anything, // ctx
 		name,
 	).Return(database.User{Name: name}, nil)
@@ -121,8 +121,8 @@ func TestRegisterHandler_InvalidRegister_NameExists(t *testing.T) {
 	err := HandleRegister(st, cmd)
 	require.Error(t, err)
 
-	mockDB.AssertCalled(t, 
-		"GetUser", 
+	mockDB.AssertCalled(t,
+		"GetUser",
 		mock.Anything, // ctx
 		name,
 	)
