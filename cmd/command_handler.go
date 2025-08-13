@@ -14,6 +14,9 @@ func HandleLogin(st *state, cmd command) error {
 	if len(cmd.args) == 0 {
 		return fmt.Errorf("no enough args for %s", cmd.name)
 	}
+	if !doesUserExist(st, cmd.args[0]) {
+		return errors.New("user with given name doesn't exists")
+	}
 	st.cfg.SetUser(cmd.args[0])
 	st.cfg.Save()
 	fmt.Println("current username got logged in")

@@ -51,22 +51,27 @@ func TestCommandsRegistryAndRun_ValidRegistryAndRun(t *testing.T) {
 }
 
 func TestLoginHandler_ValidLogin(t *testing.T) {
+	name := "mays"
 	mockConfig := config.MockConfigService{}
-	mockConfig.On("SetUser", "mays-alreem").Return()
+	mockConfig.On("SetUser", name).Return()
 	mockConfig.On("Save").Return(nil)
 
-	st := NewState(&mockConfig, nil)
+	mockDB := repository.MockUserStore{}
+	mockDB.On("GetUser", mock.Anything, name).Return(database.User{Name: name}, nil)
+
+	st := NewState(&mockConfig, &mockDB)
 
 	cmd := command{
 		name: "login",
-		args: []string{"mays-alreem"},
+		args: []string{name},
 	}
 
 	err := HandleLogin(st, cmd)
 	require.NoError(t, err)
 
-	mockConfig.AssertCalled(t, "SetUser", "mays-alreem")
+	mockConfig.AssertCalled(t, "SetUser", name)
 	mockConfig.AssertCalled(t, "Save")
+	mockDB.AssertCalled(t, "GetUser", mock.Anything, name)
 }
 
 func TestRegisterHandler_ValidRegister(t *testing.T) {
