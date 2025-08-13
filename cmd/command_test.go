@@ -74,6 +74,28 @@ func TestLoginHandler_ValidLogin(t *testing.T) {
 	mockDB.AssertCalled(t, "GetUser", mock.Anything, name)
 }
 
+func TestLoginHandler_InvalidLogin_NoNameExists(t *testing.T) {
+	name := "mays"
+	
+	mockDB := repository.MockUserStore{}
+	mockDB.On("GetUser", mock.Anything, name).Return(database.User{}, nil)
+
+	mockConfig := config.MockConfigService{}
+
+	st := NewState(&mockConfig, &mockDB)
+	cmd := command{
+		name: "login",
+		args: []string{name},
+	}
+
+	err := HandleLogin(st, cmd)
+	require.Error(t, err)
+	
+	mockDB.AssertCalled(t, "GetUser", mock.Anything, name)
+	mockConfig.AssertNotCalled(t, "SetUser", name)
+	mockConfig.AssertNotCalled(t, "Save")
+}
+
 func TestRegisterHandler_ValidRegister(t *testing.T) {
 	name := "mays"
 
@@ -82,6 +104,11 @@ func TestRegisterHandler_ValidRegister(t *testing.T) {
 	})
 
 	mockDB := repository.MockUserStore{}
+	mockDB.On(
+		"GetUser",
+		mock.Anything, // ctx
+		name,
+	).Return(database.User{}, nil)
 	mockDB.
 		On("CreateUser",
 			mock.Anything, // ctx
@@ -103,6 +130,11 @@ func TestRegisterHandler_ValidRegister(t *testing.T) {
 		"CreateUser",
 		mock.Anything, // ctx
 		nameMatcher,
+	)
+	mockDB.AssertCalled(t,
+		"GetUser",
+		mock.Anything, // ctx
+		name,
 	)
 }
 
