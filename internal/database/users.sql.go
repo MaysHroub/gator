@@ -3,6 +3,7 @@
 //   sqlc v1.29.0
 // source: users.sql
 
+// Package database provides database access and query methods for user data.
 package database
 
 import (

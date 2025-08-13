@@ -100,3 +100,31 @@ func TestRegisterHandler_ValidRegister(t *testing.T) {
 		nameMatcher,
 	)
 }
+
+func TestRegisterHandler_InvalidRegister_NameExists(t *testing.T) {
+	name := "mays"
+
+	mockDB := repository.MockUserStore{}
+	mockDB.On(
+		"GetUser", 
+		mock.Anything, // ctx
+		name,
+	).Return(database.User{Name: name}, nil)
+
+	st := NewState(nil, &mockDB)
+
+	cmd := command{
+		name: "register",
+		args: []string{name},
+	}
+
+	err := HandleRegister(st, cmd)
+	require.Error(t, err)
+
+	mockDB.AssertCalled(t, 
+		"GetUser", 
+		mock.Anything, // ctx
+		name,
+	)
+	mockDB.AssertNotCalled(t, "CreateUser")
+}
