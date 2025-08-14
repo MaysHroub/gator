@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -206,5 +207,28 @@ func TestListUsersNamesHandlers(t *testing.T) {
 }
 
 func TestAddFeedHandler_ValidAddition(t *testing.T) {
-	
+	feedName := "feedname"
+	userID := uuid.NullUUID{}
+	cmdName := "addfeed"
+	feedURL := "https://example.com"
+
+	nameAndUserIdMatcher := mock.MatchedBy(func(p database.CreateFeedParams) bool {
+		return p.Name == feedName && p.UserID == userID
+	})
+
+	mockDB := repository.MockFeedStore{}
+	mockDB.On("CreateFeed", mock.Anything, nameAndUserIdMatcher).
+		Return(database.Feed{Name: feedName, UserID: userID}, nil)
+
+	st := NewState(nil, &mockDB)
+
+	cmd := command{
+		name: cmdName,
+		args: []string{feedName, feedURL},
+	}
+
+	err := HandleAddFeed(st, cmd)
+	require.NoError(t, err)
+
+	mockDB.AssertCalled(t, "CreateFeed", mock.Anything, nameAndUserIdMatcher)
 }
