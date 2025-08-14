@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github/MaysHroub/gator/internal/database"
+	"github/MaysHroub/gator/rss"
 	"time"
 
 	"github.com/google/uuid"
@@ -63,6 +64,16 @@ func HandleListAllNames(st *state, cmd command) error {
 		}
 		fmt.Println(name)
 	}
+	return nil
+}
+
+func HandleAgg(st *state, cmd command) error {
+	url := "https://www.wagslane.dev/index.xml"
+	rssFeed, err := rss.FetchFeed(context.Background(), url)
+	if err != nil {
+		return err
+	}
+	fmt.Println(rssFeed)
 	return nil
 }
 
