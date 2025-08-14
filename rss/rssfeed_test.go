@@ -44,8 +44,8 @@ func TestFetchFeed_ValidFetch(t *testing.T) {
 	rssFeed, err := FetchFeed(context.Background(), svr.URL)
 
 	require.NoError(t, err)
-	assert.Equal(t, feedTitle, rssFeed.Title)
-	assert.Equal(t, feedLink, rssFeed.Link)
-	assert.Equal(t, feedDesc, rssFeed.Description)
-	assert.Equal(t, 2, len(rssFeed.Items))
+	assert.Equal(t, feedTitle, rssFeed.Channel.Title)
+	assert.Equal(t, feedLink, rssFeed.Channel.Link)
+	assert.Equal(t, feedDesc, rssFeed.Channel.Description)
+	assert.Equal(t, 2, len(rssFeed.Channel.Items))
 }
