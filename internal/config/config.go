@@ -11,6 +11,7 @@ const ConfigFileName = ".gatorconfig.json"
 
 type ConfigManager interface {
 	SetUser(username string)
+	GetUser() string
 	Save() error
 }
 
@@ -37,6 +38,10 @@ type Config struct {
 
 func (cfgService *ConfigService) SetUser(username string) {
 	cfgService.Cfg.CurrentUsername = username
+}
+
+func (cfgService *ConfigService) GetUser() string {
+	return cfgService.Cfg.CurrentUsername
 }
 
 func (cfgService *ConfigService) Save() error {

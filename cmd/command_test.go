@@ -189,15 +189,18 @@ func TestResetUsersHandler(t *testing.T) {
 
 func TestListUsersNamesHandlers(t *testing.T) {
 	mockDB := repository.MockUserStore{}
-	mockDB.On("GetUsersNames", mock.Anything)
+	mockDB.On("GetUsersNames", mock.Anything).Return([]string{"mays", "reem"}, nil)
 
-	st := NewState(nil, &mockDB)
+	mockConfig := config.MockConfigService{}
+	mockConfig.On("GetUser").Return("mays")
+
+	st := NewState(&mockConfig, &mockDB)
 	cmd := command{
 		name: "users",
 	}
 
 	err := HandleListAllNames(st, cmd)
-	require.Error(t, err)
+	require.NoError(t, err)
 
 	mockDB.AssertCalled(t, "GetUsersNames", mock.Anything)
 }

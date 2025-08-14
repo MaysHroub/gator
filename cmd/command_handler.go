@@ -58,10 +58,12 @@ func HandleListAllNames(st *state, cmd command) error {
 	}
 	for _, name := range names {
 		if name == st.cfg.GetUser() {
-			fmt.Println(name + "(current)")
+			fmt.Println(name + " (current)")
+			continue
 		}
 		fmt.Println(name)
 	}
+	return nil
 }
 
 func doesUserExist(st *state, name string) bool {
