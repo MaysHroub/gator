@@ -77,6 +77,35 @@ func HandleAgg(st *state, cmd command) error {
 	return nil
 }
 
+func HandleAddFeed(st *state, cmd command) error {
+	if len(cmd.args) < 2 {
+		return fmt.Errorf("no enough args for %s", cmd.name)
+	}
+
+	userID := getCurrentUserID(st)
+
+	params := database.CreateFeedParams{
+		ID:        uuid.New(),
+		Name:      cmd.args[0],
+		Url:       cmd.args[1],
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    userID,
+	}
+
+	_, err := st.db.CreateFeed(context.Background(), params)
+	return err
+}
+
+func getCurrentUserID(st *state) uuid.NullUUID {
+	currentUsername := st.cfg.GetUser()
+	user, err := st.db.GetUser(context.Background(), currentUsername)
+	if err != nil {
+		return uuid.NullUUID{}
+	}
+	return uuid.NullUUID{UUID: user.ID, Valid: true}
+}
+
 func doesUserExist(st *state, name string) bool {
 	usr, err := st.db.GetUser(context.Background(), name)
 	if err != nil {
