@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"github/MaysHroub/gator/internal/gatorapi"
+	"html"
 	"time"
 )
 
@@ -40,5 +41,17 @@ func FetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 		return nil, fmt.Errorf("failed to parse response data: %w", err)
 	}
 
+	unescapeRssFeedFields(&rssFeed)
+
 	return &rssFeed, nil
+}
+
+func unescapeRssFeedFields(rssFeed *RSSFeed) {
+	rssFeed.Channel.Title = html.UnescapeString(rssFeed.Channel.Title)
+	rssFeed.Channel.Description = html.UnescapeString(rssFeed.Channel.Description)
+
+	for i := range rssFeed.Channel.Items {
+		rssFeed.Channel.Items[i].Title = html.UnescapeString(rssFeed.Channel.Items[i].Title)
+		rssFeed.Channel.Items[i].Description = html.UnescapeString(rssFeed.Channel.Items[i].Description)
+	}
 }
