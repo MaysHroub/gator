@@ -25,3 +25,8 @@ func (mk *MockUserStore) DeleteAllUsers(ctx context.Context) error {
 	args := mk.Called(ctx)
 	return args.Error(0)
 }
+
+func (mk *MockUserStore) GetUsersNames(ctx context.Context) ([]string, error) {
+	args := mk.Called(ctx)
+	return args.Get(0).([]string), args.Error(1)
+}

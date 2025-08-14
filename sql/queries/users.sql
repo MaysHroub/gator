@@ -16,3 +16,9 @@ WHERE
 
 -- name: DeleteAllUsers :exec
 TRUNCATE TABLE users;
+
+-- name: GetUsersNames :many
+SELECT
+    name
+FROM
+    users;

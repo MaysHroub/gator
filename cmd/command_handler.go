@@ -51,6 +51,19 @@ func HandleResetUsers(st *state, cmd command) error {
 	return st.db.DeleteAllUsers(context.Background())
 }
 
+func HandleListAllNames(st *state, cmd command) error {
+	names, err := st.db.GetUsersNames(context.Background())
+	if err != nil {
+		return err
+	}
+	for _, name := range names {
+		if name == st.cfg.GetUser() {
+			fmt.Println(name + "(current)")
+		}
+		fmt.Println(name)
+	}
+}
+
 func doesUserExist(st *state, name string) bool {
 	usr, err := st.db.GetUser(context.Background(), name)
 	if err != nil {

@@ -171,7 +171,7 @@ func TestRegisterHandler_InvalidRegister_NameExists(t *testing.T) {
 	mockDB.AssertNotCalled(t, "CreateUser")
 }
 
-func TestResetUsers(t *testing.T) {
+func TestResetUsersHandler(t *testing.T) {
 	mockDB := repository.MockUserStore{}
 	mockDB.On("DeleteAllUsers", mock.Anything).Return(nil)
 
@@ -185,4 +185,19 @@ func TestResetUsers(t *testing.T) {
 	require.NoError(t, err)
 
 	mockDB.AssertCalled(t, "DeleteAllUsers", mock.Anything)
+}
+
+func TestListUsersNamesHandlers(t *testing.T) {
+	mockDB := repository.MockUserStore{}
+	mockDB.On("GetUsersNames", mock.Anything)
+
+	st := NewState(nil, &mockDB)
+	cmd := command{
+		name: "users",
+	}
+
+	err := HandleListAllNames(st, cmd)
+	require.Error(t, err)
+
+	mockDB.AssertCalled(t, "GetUsersNames", mock.Anything)
 }
