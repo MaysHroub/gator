@@ -242,5 +242,40 @@ func TestAddFeedHandler_ValidAddition(t *testing.T) {
 }
 
 func TestShowAllFeedsHandler(t *testing.T) {
-	mockDB := 
+	rows := []database.GetAllFeedsRow{
+		{
+			Feedname: "feed1",
+			Url: "https://example1.com",
+			Username: "user1",
+		},
+		{
+			Feedname: "feed1",
+			Url: "https://example1.com",
+			Username: "user2",
+		},
+		{
+			Feedname: "feed2",
+			Url: "https://example1.com",
+			Username: "user1",
+		},
+		{
+			Feedname: "feed2",
+			Url: "https://example1.com",
+			Username: "user3",
+		},
+		
+	}
+
+	mockDB := repository.MockRepository{}
+	mockDB.On("GetAllFeeds", mock.Anything).Return(rows, nil)
+
+	st := NewState(nil, &mockDB)
+	cmd := command{
+		name: "feeds",
+	}
+
+	err := HandleShowAllFeeds(st, cmd)
+	require.NoError(t, err)
+
+	mockDB.AssertCalled(t, "GetAllFeeds", mock.Anything)
 }
