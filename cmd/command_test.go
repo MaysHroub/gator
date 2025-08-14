@@ -170,3 +170,19 @@ func TestRegisterHandler_InvalidRegister_NameExists(t *testing.T) {
 	)
 	mockDB.AssertNotCalled(t, "CreateUser")
 }
+
+func TestResetUsers(t *testing.T) {
+	mockDB := repository.MockUserStore{}
+	mockDB.On("DeleteAllUsers", mock.Anything).Return(nil)
+
+	st := NewState(nil, &mockDB)
+
+	cmd := command{
+		name: "reset",
+	}
+
+	err := HandleResetUsers(st, cmd)
+	require.NoError(t, err)
+
+	mockDB.AssertCalled(t, "DeleteAllUsers", mock.Anything)
+}

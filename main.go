@@ -38,6 +38,7 @@ func main() {
 	commands := cmd.NewCommands()
 	commands.Register("login", cmd.HandleLogin)
 	commands.Register("register", cmd.HandleRegister)
+	commands.Register("reset", cmd.HandleResetUsers)
 
 	cmnd := cmd.ParseCliArgs(os.Args...)
 

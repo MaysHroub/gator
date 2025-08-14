@@ -3,7 +3,6 @@
 //   sqlc v1.29.0
 // source: users.sql
 
-// Package database provides database access and query methods for user data.
 package database
 
 import (
@@ -46,13 +45,22 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const deleteAllUsers = `-- name: DeleteAllUsers :exec
+TRUNCATE TABLE users
+`
+
+func (q *Queries) DeleteAllUsers(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteAllUsers)
+	return err
+}
+
 const getUser = `-- name: GetUser :one
 SELECT
     id, created_at, updated_at, name
 FROM
     users
 WHERE
-    name LIKE $1
+    name=$1
 `
 
 func (q *Queries) GetUser(ctx context.Context, name string) (User, error) {

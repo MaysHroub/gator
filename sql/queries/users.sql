@@ -12,6 +12,7 @@ SELECT
 FROM
     users
 WHERE
-    name LIKE $1;
+    name=$1;
 
-    
+-- name: DeleteAllUsers :exec
+TRUNCATE TABLE users;

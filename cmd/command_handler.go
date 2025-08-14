@@ -47,6 +47,10 @@ func HandleRegister(st *state, cmd command) error {
 	return nil
 }
 
+func HandleResetUsers(st *state, cmd command) error {
+	return st.db.DeleteAllUsers(context.Background())
+}
+
 func doesUserExist(st *state, name string) bool {
 	usr, err := st.db.GetUser(context.Background(), name)
 	if err != nil {
