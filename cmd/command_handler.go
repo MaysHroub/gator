@@ -97,6 +97,18 @@ func HandleAddFeed(st *state, cmd command) error {
 	return err
 }
 
+func HandleShowAllFeeds(st *state, cmd command) error {
+	rows, err := st.db.GetAllFeeds(context.Background())
+	if err != nil {
+		return err
+	}
+	for _, row := range rows {
+		fmt.Printf("Feed name: %s\nFeed URL: %s\nUser name: %s\n------------------------>\n", 
+					row.Feedname, row.Url, row.Username)
+	}
+	return nil
+}
+
 func getCurrentUserID(st *state) uuid.NullUUID {
 	currentUsername := st.cfg.GetCurrentUsername()
 	user, err := st.db.GetUserByName(context.Background(), currentUsername)

@@ -42,6 +42,7 @@ func main() {
 	commands.Register("users", cmd.HandleListAllNames)
 	commands.Register("agg", cmd.HandleAgg)
 	commands.Register("addfeed", cmd.HandleAddFeed)
+	commands.Register("feeds", cmd.HandleShowAllFeeds)
 
 	cmnd := cmd.ParseCliArgs(os.Args...)
 
