@@ -204,3 +204,7 @@ func TestListUsersNamesHandlers(t *testing.T) {
 
 	mockDB.AssertCalled(t, "GetUsersNames", mock.Anything)
 }
+
+func TestAddFeedHandler_ValidAddition(t *testing.T) {
+	
+}
