@@ -6,9 +6,10 @@ import (
 	"github/MaysHroub/gator/internal/database"
 )
 
-type UserStore interface {
+type Repository interface {
 	CreateUser(ctx context.Context, arg database.CreateUserParams) (database.User, error)
 	GetUser(ctx context.Context, name string) (database.User, error)
 	DeleteAllUsers(ctx context.Context) error
 	GetUsersNames(ctx context.Context) ([]string, error)
+	CreateFeed(ctx context.Context, arg database.CreateFeedParams) (database.Feed, error)
 }

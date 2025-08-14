@@ -7,12 +7,12 @@ import (
 
 type state struct {
 	cfg config.ConfigManager
-	db repository.UserStore
+	db  repository.Repository
 }
 
-func NewState(cfgMngr config.ConfigManager, db repository.UserStore) *state {
+func NewState(cfgMngr config.ConfigManager, db repository.Repository) *state {
 	return &state{
-		cfg: cfgMngr,
+		cfg:    cfgMngr,
 		db: db,
 	}
 }

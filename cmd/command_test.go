@@ -57,7 +57,7 @@ func TestLoginHandler_ValidLogin(t *testing.T) {
 	mockConfig.On("SetUser", name).Return()
 	mockConfig.On("Save").Return(nil)
 
-	mockDB := repository.MockUserStore{}
+	mockDB := repository.MockRepository{}
 	mockDB.On("GetUser", mock.Anything, name).Return(database.User{Name: name}, nil)
 
 	st := NewState(&mockConfig, &mockDB)
@@ -77,8 +77,8 @@ func TestLoginHandler_ValidLogin(t *testing.T) {
 
 func TestLoginHandler_InvalidLogin_NoNameExists(t *testing.T) {
 	name := "mays"
-	
-	mockDB := repository.MockUserStore{}
+
+	mockDB := repository.MockRepository{}
 	mockDB.On("GetUser", mock.Anything, name).Return(database.User{}, nil)
 
 	mockConfig := config.MockConfigService{}
@@ -91,7 +91,7 @@ func TestLoginHandler_InvalidLogin_NoNameExists(t *testing.T) {
 
 	err := HandleLogin(st, cmd)
 	require.Error(t, err)
-	
+
 	mockDB.AssertCalled(t, "GetUser", mock.Anything, name)
 	mockConfig.AssertNotCalled(t, "SetUser", name)
 	mockConfig.AssertNotCalled(t, "Save")
@@ -104,7 +104,7 @@ func TestRegisterHandler_ValidRegister(t *testing.T) {
 		return p.Name == name
 	})
 
-	mockDB := repository.MockUserStore{}
+	mockDB := repository.MockRepository{}
 	mockDB.On(
 		"GetUser",
 		mock.Anything, // ctx
@@ -114,7 +114,7 @@ func TestRegisterHandler_ValidRegister(t *testing.T) {
 		On("CreateUser",
 			mock.Anything, // ctx
 			nameMatcher,
-	).Return(database.User{}, nil)
+		).Return(database.User{}, nil)
 
 	mockConfig := config.MockConfigService{}
 	mockConfig.On("SetUser", name).Return()
@@ -147,7 +147,7 @@ func TestRegisterHandler_ValidRegister(t *testing.T) {
 func TestRegisterHandler_InvalidRegister_NameExists(t *testing.T) {
 	name := "mays"
 
-	mockDB := repository.MockUserStore{}
+	mockDB := repository.MockRepository{}
 	mockDB.On(
 		"GetUser",
 		mock.Anything, // ctx
@@ -173,7 +173,7 @@ func TestRegisterHandler_InvalidRegister_NameExists(t *testing.T) {
 }
 
 func TestResetUsersHandler(t *testing.T) {
-	mockDB := repository.MockUserStore{}
+	mockDB := repository.MockRepository{}
 	mockDB.On("DeleteAllUsers", mock.Anything).Return(nil)
 
 	st := NewState(nil, &mockDB)
@@ -189,7 +189,7 @@ func TestResetUsersHandler(t *testing.T) {
 }
 
 func TestListUsersNamesHandlers(t *testing.T) {
-	mockDB := repository.MockUserStore{}
+	mockDB := repository.MockRepository{}
 	mockDB.On("GetUsersNames", mock.Anything).Return([]string{"mays", "reem"}, nil)
 
 	mockConfig := config.MockConfigService{}
@@ -216,7 +216,7 @@ func TestAddFeedHandler_ValidAddition(t *testing.T) {
 		return p.Name == feedName && p.UserID == userID
 	})
 
-	mockDB := repository.MockFeedStore{}
+	mockDB := repository.MockRepository{}
 	mockDB.On("CreateFeed", mock.Anything, nameAndUserIdMatcher).
 		Return(database.Feed{Name: feedName, UserID: userID}, nil)
 
