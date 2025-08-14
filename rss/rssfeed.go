@@ -5,8 +5,12 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
-	"io"
+	"github/MaysHroub/gator/internal/gatorapi"
+	"time"
 )
+
+const timeout = 10 * time.Second
+
 
 type RSSFeed struct {
 	Channel struct {
@@ -25,18 +29,12 @@ type RSSItem struct {
 }
 
 func FetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
-	client := gatorapi.NewClient(feedURL)
-	resp, err := client.MakeRequest()
+	client := gatorapi.NewClient(timeout)
+	data, err := client.Get(feedURL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to make request to %s: %w", feedURL, err)
+		return nil, err
 	}
-	defer resp.Close()
-
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
+	
 	var rssFeed RSSFeed
 	if err = xml.Unmarshal(data, &rssFeed); err != nil {
 		return nil, fmt.Errorf("failed to parse response data: %w", err)
