@@ -12,4 +12,5 @@ type Repository interface {
 	DeleteAllUsers(ctx context.Context) error
 	GetNamesOfAllUsers(ctx context.Context) ([]string, error)
 	CreateFeed(ctx context.Context, arg database.CreateFeedParams) (database.Feed, error)
+	GetAllFeeds(ctx context.Context) ([]database.GetAllFeedsRow, error)
 }

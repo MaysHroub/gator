@@ -240,3 +240,7 @@ func TestAddFeedHandler_ValidAddition(t *testing.T) {
 	mockDB.AssertCalled(t, "GetUserByName", mock.Anything, userName)
 	mockDB.AssertCalled(t, "CreateFeed", mock.Anything, nameAndUserIDMatcher)
 }
+
+func TestShowAllFeedsHandler(t *testing.T) {
+	mockDB := 
+}

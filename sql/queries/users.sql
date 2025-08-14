@@ -15,7 +15,7 @@ WHERE
     name=$1;
 
 -- name: DeleteAllUsers :exec
-TRUNCATE TABLE users;
+TRUNCATE TABLE users CASCADE;
 
 -- name: GetNamesOfAllUsers :many
 SELECT

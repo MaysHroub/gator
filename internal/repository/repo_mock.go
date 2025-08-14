@@ -35,3 +35,8 @@ func (mk *MockRepository) CreateFeed(ctx context.Context, arg database.CreateFee
 	args := mk.Called(ctx, arg)
 	return args.Get(0).(database.Feed), args.Error(1)
 }
+
+func (mk *MockRepository) GetAllFeeds(ctx context.Context) ([]database.GetAllFeedsRow, error) {
+	args := mk.Called(ctx)
+	return args.Get(0).([]database.GetAllFeedsRow), args.Error(1)
+}
