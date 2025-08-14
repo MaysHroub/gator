@@ -10,8 +10,8 @@ import (
 const ConfigFileName = ".gatorconfig.json"
 
 type ConfigManager interface {
-	SetUser(username string)
-	GetUser() string
+	SetCurrentUsername(username string)
+	GetCurrentUsername() string
 	Save() error
 }
 
@@ -36,11 +36,11 @@ type Config struct {
 	CurrentUsername string `json:"current_user_name"`
 }
 
-func (cfgService *ConfigService) SetUser(username string) {
+func (cfgService *ConfigService) SetCurrentUsername(username string) {
 	cfgService.Cfg.CurrentUsername = username
 }
 
-func (cfgService *ConfigService) GetUser() string {
+func (cfgService *ConfigService) GetCurrentUsername() string {
 	return cfgService.Cfg.CurrentUsername
 }
 

@@ -18,7 +18,7 @@ func HandleLogin(st *state, cmd command) error {
 	if !doesUserExist(st, cmd.args[0]) {
 		return errors.New("user with given name doesn't exists")
 	}
-	st.cfg.SetUser(cmd.args[0])
+	st.cfg.SetCurrentUsername(cmd.args[0])
 	st.cfg.Save()
 	fmt.Println("current username got logged in")
 	return nil
@@ -42,7 +42,7 @@ func HandleRegister(st *state, cmd command) error {
 	if err != nil {
 		return err
 	}
-	st.cfg.SetUser(cmd.args[0])
+	st.cfg.SetCurrentUsername(cmd.args[0])
 	st.cfg.Save()
 	fmt.Println("current username got registered and logged in")
 	return nil
@@ -53,12 +53,12 @@ func HandleResetUsers(st *state, cmd command) error {
 }
 
 func HandleListAllNames(st *state, cmd command) error {
-	names, err := st.db.GetUsersNames(context.Background())
+	names, err := st.db.GetNamesOfAllUsers(context.Background())
 	if err != nil {
 		return err
 	}
 	for _, name := range names {
-		if name == st.cfg.GetUser() {
+		if name == st.cfg.GetCurrentUsername() {
 			fmt.Println(name + " (current)")
 			continue
 		}
@@ -98,8 +98,8 @@ func HandleAddFeed(st *state, cmd command) error {
 }
 
 func getCurrentUserID(st *state) uuid.NullUUID {
-	currentUsername := st.cfg.GetUser()
-	user, err := st.db.GetUser(context.Background(), currentUsername)
+	currentUsername := st.cfg.GetCurrentUsername()
+	user, err := st.db.GetUserByName(context.Background(), currentUsername)
 	if err != nil {
 		return uuid.NullUUID{}
 	}
@@ -107,7 +107,7 @@ func getCurrentUserID(st *state) uuid.NullUUID {
 }
 
 func doesUserExist(st *state, name string) bool {
-	usr, err := st.db.GetUser(context.Background(), name)
+	usr, err := st.db.GetUserByName(context.Background(), name)
 	if err != nil {
 		return false
 	}

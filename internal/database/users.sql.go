@@ -54,36 +54,15 @@ func (q *Queries) DeleteAllUsers(ctx context.Context) error {
 	return err
 }
 
-const getUser = `-- name: GetUser :one
-SELECT
-    id, created_at, updated_at, name
-FROM
-    users
-WHERE
-    name=$1
-`
-
-func (q *Queries) GetUser(ctx context.Context, name string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, name)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.Name,
-	)
-	return i, err
-}
-
-const getUsersNames = `-- name: GetUsersNames :many
+const getNamesOfAllUsers = `-- name: GetNamesOfAllUsers :many
 SELECT
     name
 FROM
     users
 `
 
-func (q *Queries) GetUsersNames(ctx context.Context) ([]string, error) {
-	rows, err := q.db.QueryContext(ctx, getUsersNames)
+func (q *Queries) GetNamesOfAllUsers(ctx context.Context) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getNamesOfAllUsers)
 	if err != nil {
 		return nil, err
 	}
@@ -103,4 +82,25 @@ func (q *Queries) GetUsersNames(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const getUserByName = `-- name: GetUserByName :one
+SELECT
+    id, created_at, updated_at, name
+FROM
+    users
+WHERE
+    name=$1
+`
+
+func (q *Queries) GetUserByName(ctx context.Context, name string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByName, name)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+	)
+	return i, err
 }

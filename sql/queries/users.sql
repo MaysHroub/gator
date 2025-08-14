@@ -6,7 +6,7 @@ VALUES
 RETURNING
 *;
 
--- name: GetUser :one
+-- name: GetUserByName :one
 SELECT
     *
 FROM
@@ -17,7 +17,7 @@ WHERE
 -- name: DeleteAllUsers :exec
 TRUNCATE TABLE users;
 
--- name: GetUsersNames :many
+-- name: GetNamesOfAllUsers :many
 SELECT
     name
 FROM

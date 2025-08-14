@@ -6,11 +6,11 @@ type MockConfigService struct {
 	mock.Mock
 }
 
-func (mk *MockConfigService) SetUser(username string) {
+func (mk *MockConfigService) SetCurrentUsername(username string) {
 	mk.Called(username)
 }
 
-func (mk *MockConfigService) GetUser() string {
+func (mk *MockConfigService) GetCurrentUsername() string {
 	args := mk.Called()
 	return args.String(0)
 }

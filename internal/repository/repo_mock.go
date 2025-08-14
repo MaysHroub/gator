@@ -16,7 +16,7 @@ func (mk *MockRepository) CreateUser(ctx context.Context, arg database.CreateUse
 	return args.Get(0).(database.User), args.Error(1)
 }
 
-func (mk *MockRepository) GetUser(ctx context.Context, name string) (database.User, error) {
+func (mk *MockRepository) GetUserByName(ctx context.Context, name string) (database.User, error) {
 	args := mk.Called(ctx, name)
 	return args.Get(0).(database.User), args.Error(1)
 }
@@ -26,7 +26,7 @@ func (mk *MockRepository) DeleteAllUsers(ctx context.Context) error {
 	return args.Error(0)
 }
 
-func (mk *MockRepository) GetUsersNames(ctx context.Context) ([]string, error) {
+func (mk *MockRepository) GetNamesOfAllUsers(ctx context.Context) ([]string, error) {
 	args := mk.Called(ctx)
 	return args.Get(0).([]string), args.Error(1)
 }

@@ -41,7 +41,7 @@ func main() {
 	commands.Register("reset", cmd.HandleResetUsers)
 	commands.Register("users", cmd.HandleListAllNames)
 	commands.Register("agg", cmd.HandleAgg)
-
+	commands.Register("addfeed", cmd.HandleAddFeed)
 
 	cmnd := cmd.ParseCliArgs(os.Args...)
 

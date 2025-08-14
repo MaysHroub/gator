@@ -28,7 +28,7 @@ func TestStateCreationWithConfig_ValidCreation(t *testing.T) {
 	cfgService, err := config.NewConfigService(path)
 	require.NoError(t, err)
 
-	cfgService.SetUser("mays-alreem")
+	cfgService.SetCurrentUsername("mays-alreem")
 	state := NewState(cfgService, nil)
 
 	assert.Equal(t, cfgService, state.cfg)
@@ -54,11 +54,11 @@ func TestCommandsRegistryAndRun_ValidRegistryAndRun(t *testing.T) {
 func TestLoginHandler_ValidLogin(t *testing.T) {
 	name := "mays"
 	mockConfig := config.MockConfigService{}
-	mockConfig.On("SetUser", name).Return()
+	mockConfig.On("SetCurrentUsername", name).Return()
 	mockConfig.On("Save").Return(nil)
 
 	mockDB := repository.MockRepository{}
-	mockDB.On("GetUser", mock.Anything, name).Return(database.User{Name: name}, nil)
+	mockDB.On("GetUserByName", mock.Anything, name).Return(database.User{Name: name}, nil)
 
 	st := NewState(&mockConfig, &mockDB)
 
@@ -70,16 +70,16 @@ func TestLoginHandler_ValidLogin(t *testing.T) {
 	err := HandleLogin(st, cmd)
 	require.NoError(t, err)
 
-	mockConfig.AssertCalled(t, "SetUser", name)
+	mockConfig.AssertCalled(t, "SetCurrentUsername", name)
 	mockConfig.AssertCalled(t, "Save")
-	mockDB.AssertCalled(t, "GetUser", mock.Anything, name)
+	mockDB.AssertCalled(t, "GetUserByName", mock.Anything, name)
 }
 
 func TestLoginHandler_InvalidLogin_NoNameExists(t *testing.T) {
 	name := "mays"
 
 	mockDB := repository.MockRepository{}
-	mockDB.On("GetUser", mock.Anything, name).Return(database.User{}, nil)
+	mockDB.On("GetUserByName", mock.Anything, name).Return(database.User{}, nil)
 
 	mockConfig := config.MockConfigService{}
 
@@ -92,8 +92,8 @@ func TestLoginHandler_InvalidLogin_NoNameExists(t *testing.T) {
 	err := HandleLogin(st, cmd)
 	require.Error(t, err)
 
-	mockDB.AssertCalled(t, "GetUser", mock.Anything, name)
-	mockConfig.AssertNotCalled(t, "SetUser", name)
+	mockDB.AssertCalled(t, "GetUserByName", mock.Anything, name)
+	mockConfig.AssertNotCalled(t, "SetCurrentUsername", name)
 	mockConfig.AssertNotCalled(t, "Save")
 }
 
@@ -106,7 +106,7 @@ func TestRegisterHandler_ValidRegister(t *testing.T) {
 
 	mockDB := repository.MockRepository{}
 	mockDB.On(
-		"GetUser",
+		"GetUserByName",
 		mock.Anything, // ctx
 		name,
 	).Return(database.User{}, nil)
@@ -117,7 +117,7 @@ func TestRegisterHandler_ValidRegister(t *testing.T) {
 		).Return(database.User{}, nil)
 
 	mockConfig := config.MockConfigService{}
-	mockConfig.On("SetUser", name).Return()
+	mockConfig.On("SetCurrentUsername", name).Return()
 	mockConfig.On("Save").Return(nil)
 
 	st := NewState(&mockConfig, &mockDB)
@@ -136,11 +136,11 @@ func TestRegisterHandler_ValidRegister(t *testing.T) {
 		nameMatcher,
 	)
 	mockDB.AssertCalled(t,
-		"GetUser",
+		"GetUserByName",
 		mock.Anything, // ctx
 		name,
 	)
-	mockConfig.AssertCalled(t, "SetUser", name)
+	mockConfig.AssertCalled(t, "SetCurrentUsername", name)
 	mockConfig.AssertCalled(t, "Save")
 }
 
@@ -149,7 +149,7 @@ func TestRegisterHandler_InvalidRegister_NameExists(t *testing.T) {
 
 	mockDB := repository.MockRepository{}
 	mockDB.On(
-		"GetUser",
+		"GetUserByName",
 		mock.Anything, // ctx
 		name,
 	).Return(database.User{Name: name}, nil)
@@ -165,14 +165,14 @@ func TestRegisterHandler_InvalidRegister_NameExists(t *testing.T) {
 	require.Error(t, err)
 
 	mockDB.AssertCalled(t,
-		"GetUser",
+		"GetUserByName",
 		mock.Anything, // ctx
 		name,
 	)
 	mockDB.AssertNotCalled(t, "CreateUser")
 }
 
-func TestResetUsersHandler(t *testing.T) {
+func TestReSetCurrentUsernamesHandler(t *testing.T) {
 	mockDB := repository.MockRepository{}
 	mockDB.On("DeleteAllUsers", mock.Anything).Return(nil)
 
@@ -190,10 +190,10 @@ func TestResetUsersHandler(t *testing.T) {
 
 func TestListUsersNamesHandlers(t *testing.T) {
 	mockDB := repository.MockRepository{}
-	mockDB.On("GetUsersNames", mock.Anything).Return([]string{"mays", "reem"}, nil)
+	mockDB.On("GetNamesOfAllUsers", mock.Anything).Return([]string{"mays", "reem"}, nil)
 
 	mockConfig := config.MockConfigService{}
-	mockConfig.On("GetUser").Return("mays")
+	mockConfig.On("GetCurrentUsername").Return("mays")
 
 	st := NewState(&mockConfig, &mockDB)
 	cmd := command{
@@ -203,7 +203,7 @@ func TestListUsersNamesHandlers(t *testing.T) {
 	err := HandleListAllNames(st, cmd)
 	require.NoError(t, err)
 
-	mockDB.AssertCalled(t, "GetUsersNames", mock.Anything)
+	mockDB.AssertCalled(t, "GetNamesOfAllUsers", mock.Anything)
 }
 
 func TestAddFeedHandler_ValidAddition(t *testing.T) {
@@ -217,11 +217,11 @@ func TestAddFeedHandler_ValidAddition(t *testing.T) {
 		return p.Name == feedName && p.UserID == userID
 	})
 
-	mockConfig := config.MockConfigService {}
-	mockConfig.On("GetUser").Return(userName)
+	mockConfig := config.MockConfigService{}
+	mockConfig.On("GetCurrentUsername").Return(userName)
 
 	mockDB := repository.MockRepository{}
-	mockDB.On("GetUser", mock.Anything, userName).
+	mockDB.On("GetUserByName", mock.Anything, userName).
 		Return(database.User{ID: userID.UUID, Name: userName}, nil)
 	mockDB.On("CreateFeed", mock.Anything, nameAndUserIDMatcher).
 		Return(database.Feed{Name: feedName, UserID: userID}, nil)
@@ -236,7 +236,7 @@ func TestAddFeedHandler_ValidAddition(t *testing.T) {
 	err := HandleAddFeed(st, cmd)
 	require.NoError(t, err)
 
-	mockConfig.AssertCalled(t, "GetUser")
-	mockDB.AssertCalled(t, "GetUser", mock.Anything, userName)
+	mockConfig.AssertCalled(t, "GetCurrentUsername")
+	mockDB.AssertCalled(t, "GetUserByName", mock.Anything, userName)
 	mockDB.AssertCalled(t, "CreateFeed", mock.Anything, nameAndUserIDMatcher)
 }

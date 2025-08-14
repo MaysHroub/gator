@@ -59,7 +59,7 @@ func TestConfigService_SetUserAndSave(t *testing.T) {
 	require.NoError(t, err)
 
 	expectedUsername := "mays-alreem"
-	cfgService.SetUser(expectedUsername)
+	cfgService.SetCurrentUsername(expectedUsername)
 
 	err = cfgService.Save()
 	require.NoError(t, err)
