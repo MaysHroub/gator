@@ -213,8 +213,11 @@ func TestAddFeedHandler_ValidAddition(t *testing.T) {
 	cmdName := "addfeed"
 	feedURL := "https://example.com"
 
-	nameAndUserIDMatcher := mock.MatchedBy(func(p database.CreateFeedParams) bool {
+	feedNameAndUserIDMatcher := mock.MatchedBy(func(p database.CreateFeedParams) bool {
 		return p.Name == feedName && p.UserID == userID
+	})
+	userIDMatcher := mock.MatchedBy(func(p database.CreateFeedFollowParams) bool {
+		return p.UserID == userID.UUID
 	})
 
 	mockConfig := config.MockConfigService{}
@@ -223,8 +226,10 @@ func TestAddFeedHandler_ValidAddition(t *testing.T) {
 	mockDB := repository.MockRepository{}
 	mockDB.On("GetUserByName", mock.Anything, userName).
 		Return(database.User{ID: userID.UUID, Name: userName}, nil)
-	mockDB.On("CreateFeed", mock.Anything, nameAndUserIDMatcher).
+	mockDB.On("CreateFeed", mock.Anything, feedNameAndUserIDMatcher).
 		Return(database.Feed{Name: feedName, UserID: userID}, nil)
+	mockDB.On("CreateFeedFollow", mock.Anything, userIDMatcher).
+		Return([]database.CreateFeedFollowRow{}, nil)
 
 	st := NewState(&mockConfig, &mockDB)
 
@@ -238,7 +243,8 @@ func TestAddFeedHandler_ValidAddition(t *testing.T) {
 
 	mockConfig.AssertCalled(t, "GetCurrentUsername")
 	mockDB.AssertCalled(t, "GetUserByName", mock.Anything, userName)
-	mockDB.AssertCalled(t, "CreateFeed", mock.Anything, nameAndUserIDMatcher)
+	mockDB.AssertCalled(t, "CreateFeed", mock.Anything, feedNameAndUserIDMatcher)
+	mockDB.AssertCalled(t, "CreateFeedFollow", mock.Anything, userIDMatcher)
 }
 
 func TestShowAllFeedsHandler(t *testing.T) {
