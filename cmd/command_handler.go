@@ -142,6 +142,10 @@ func HandleFollowFeedByURL(st *state, cmd command) error {
 	return nil 
 }
 
+func HandleShowAllFeedFollowsForUser(st *state, cmd command) error {
+	return nil
+}
+
 func getCurrentUserID(st *state) uuid.NullUUID {
 	currentUsername := st.cfg.GetCurrentUsername()
 	user, err := st.db.GetUserByName(context.Background(), currentUsername)

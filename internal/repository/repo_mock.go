@@ -50,3 +50,8 @@ func (mk *MockRepository) CreateFeedFollow(ctx context.Context, arg database.Cre
 	args := mk.Called(ctx, arg)
 	return args.Get(0).([]database.CreateFeedFollowRow), args.Error(1)
 }
+
+func (mk *MockRepository) GetFeedFollowsForUser(ctx context.Context, name string) ([]database.GetFeedFollowsForUserRow, error) {
+	args := mk.Called(ctx, name)
+	return args.Get(0).([]database.GetFeedFollowsForUserRow), args.Error(1)
+}

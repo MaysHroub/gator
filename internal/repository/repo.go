@@ -15,4 +15,5 @@ type Repository interface {
 	GetAllFeeds(ctx context.Context) ([]database.GetAllFeedsRow, error)
 	GetFeedByURL(ctx context.Context, url string) (database.Feed, error)
 	CreateFeedFollow(ctx context.Context, arg database.CreateFeedFollowParams) ([]database.CreateFeedFollowRow, error)
+	GetFeedFollowsForUser(ctx context.Context, name string) ([]database.GetFeedFollowsForUserRow, error)
 }

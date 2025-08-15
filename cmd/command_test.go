@@ -172,7 +172,7 @@ func TestRegisterHandler_InvalidRegister_NameExists(t *testing.T) {
 	mockDB.AssertNotCalled(t, "CreateUser")
 }
 
-func TestReSetCurrentUsernamesHandler(t *testing.T) {
+func TestResetCurrentUsernamesHandler(t *testing.T) {
 	mockDB := repository.MockRepository{}
 	mockDB.On("DeleteAllUsers", mock.Anything).Return(nil)
 
@@ -313,4 +313,64 @@ func TestFollowFeedHandler_ValidFollowing(t *testing.T) {
 	mockCfg.AssertCalled(t, "GetCurrentUsername")
 	mockDB.AssertCalled(t, "GetFeedByURL", mock.Anything, feedURL)
 	mockDB.AssertCalled(t, "CreateFeedFollow", mock.Anything, createFeedFollowParamsMatcher)
+}
+
+func TestGetFeedFollowForUser_UsernameGivenInCmndArgs(t *testing.T) {
+	username := "mays"
+	feedID1, feedID2 := uuid.New(), uuid.New()
+	feedname1, feedname2 := "feed example 1", "feed example 2"
+	feedFollowRecords := []database.GetFeedFollowsForUserRow{
+		{
+			FeedID: feedID1,
+			FeedName: feedname1,
+		},
+		{
+			FeedID: feedID2,
+			FeedName: feedname2,
+		},
+	}
+
+	mockCfg := config.MockConfigService{}
+	mockDB := repository.MockRepository{}
+	mockDB.On("GetFeedFollowsForUser", mock.Anything, username).Return(feedFollowRecords, nil)
+
+	st := NewState(&mockCfg, &mockDB)
+	cmd := command{name: "following", args: []string{username}}
+
+	err := HandleShowAllFeedFollowsForUser(st, cmd)
+	require.NoError(t, err)
+
+	mockDB.AssertCalled(t, "GetFeedFollowsForUser", mock.Anything, username)
+	mockCfg.AssertNotCalled(t, "GetCurrentUsername")
+}
+
+func TestGetFeedFollowForUser_NoUsernameGivenInCmndArgs(t *testing.T) {
+	username := "mays"
+	feedID1, feedID2 := uuid.New(), uuid.New()
+	feedname1, feedname2 := "feed example 1", "feed example 2"
+	feedFollowRecords := []database.GetFeedFollowsForUserRow{
+		{
+			FeedID: feedID1,
+			FeedName: feedname1,
+		},
+		{
+			FeedID: feedID2,
+			FeedName: feedname2,
+		},
+	}
+
+	mockCfg := config.MockConfigService{}
+	mockCfg.On("GetCurrentUsername").Return(username)
+
+	mockDB := repository.MockRepository{}
+	mockDB.On("GetFeedFollowsForUser", mock.Anything, username).Return(feedFollowRecords, nil)
+
+	st := NewState(nil, &mockDB)
+	cmd := command{name: "following", args: []string{username}}
+
+	err := HandleShowAllFeedFollowsForUser(st, cmd)
+	require.NoError(t, err)
+
+	mockDB.AssertCalled(t, "GetFeedFollowsForUser", mock.Anything, username)
+	mockCfg.AssertCalled(t, "GetCurrentUsername")
 }

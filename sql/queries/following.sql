@@ -21,9 +21,11 @@ GROUP BY
 
 -- name: GetFeedFollowsForUser :many
 SELECT
-    *
+    ff.*,
+    f.name AS feed_name
 FROM
     feed_follows ff
     JOIN users u ON u.id=ff.user_id
+    JOIN feeds f ON f.id=ff.feed_id
 WHERE
     u.name=$1;
