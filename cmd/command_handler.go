@@ -143,6 +143,24 @@ func HandleFollowFeedByURL(st *state, cmd command) error {
 }
 
 func HandleShowAllFeedFollowsForUser(st *state, cmd command) error {
+	var username string
+	if len(cmd.args) == 0 {
+		username = st.cfg.GetCurrentUsername()
+	} else {
+		username = cmd.args[0]
+	}
+
+	res, err := st.db.GetFeedFollowsForUser(context.Background(), username)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Followed feeds of user %s:\n", username)
+
+	for i, row := range res {
+		fmt.Printf("%v. %s", i, row.FeedName)
+	}
+
 	return nil
 }
 
