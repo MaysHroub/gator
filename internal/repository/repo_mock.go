@@ -55,3 +55,8 @@ func (mk *MockRepository) GetFeedFollowsForUser(ctx context.Context, name string
 	args := mk.Called(ctx, name)
 	return args.Get(0).([]database.GetFeedFollowsForUserRow), args.Error(1)
 }
+
+func (mk *MockRepository) DeleteFeedFollowByUserAndURL(ctx context.Context, arg database.DeleteFeedFollowByUserAndURLParams) error {
+	args := mk.Called(ctx, arg)
+	return args.Error(0)
+}
