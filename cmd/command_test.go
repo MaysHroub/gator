@@ -367,3 +367,25 @@ func TestGetFeedFollowForUser_NoUsernameGivenInCmndArgs(t *testing.T) {
 
 	mockDB.AssertCalled(t, "GetFeedFollowsForUser", mock.Anything, user.Name)
 }
+
+func TestUnfollowFeedHandler(t *testing.T) {
+	user := database.User{
+		Name: "mays",
+	}
+	feedURL := "https://example.com"
+
+	mockDB := repository.MockRepository{}
+	params := database.DeleteFeedFollowByUserAndURLParams{
+		Name: user.Name,
+		Url: feedURL,
+	}
+	mockDB.On("DeleteFeedFollowByUserAndURL", mock.Anything, params).Return(nil)
+
+	st := NewState(nil, &mockDB)
+	cmd := command{name: "unfollow", args: []string{feedURL}}
+
+	err := HandleUnfollowFeedByURL(st, cmd, user)
+	require.NoError(t, err)
+
+	mockDB.AssertCalled(t, "DeleteFeedFollowByUserAndURL", mock.Anything, params)
+}

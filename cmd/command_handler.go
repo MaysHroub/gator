@@ -173,6 +173,10 @@ func HandleShowAllFeedFollowsForUser(st *state, cmd command, user database.User)
 	return nil
 }
 
+func HandleUnfollowFeedByURL(st *state, cmd command, user database.User) error {
+	panic("unimplemented")
+}
+
 func doesUserExist(st *state, name string) bool {
 	usr, err := st.db.GetUserByName(context.Background(), name)
 	if err != nil {
