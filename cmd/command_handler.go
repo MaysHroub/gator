@@ -110,6 +110,35 @@ func HandleShowAllFeeds(st *state, cmd command) error {
 }
 
 func HandleFollowFeedByURL(st *state, cmd command) error {
+	if len(cmd.args) < 1 {
+		return fmt.Errorf("no enough args for %s", cmd.name)
+	}
+	ctx := context.Background()
+	feedURL := cmd.args[0]
+	username := st.cfg.GetCurrentUsername()
+
+	feed, err := st.db.GetFeedByURL(ctx, feedURL)
+	if err != nil {
+		return err
+	}
+	user, err := st.db.GetUserByName(ctx, username)
+	if err != nil {
+		return err
+	}
+
+	_, err = st.db.CreateFeedFollow(ctx, database.CreateFeedFollowParams{
+		ID: uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID: user.ID,
+		FeedID: feed.ID,
+	})
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("User %s is following feed '%s' of ID %v\n", username, feed.Name, feed.ID)
+
 	return nil 
 }
 
