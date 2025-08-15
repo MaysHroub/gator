@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -110,6 +111,39 @@ func (q *Queries) GetFeedByURL(ctx context.Context, url string) (Feed, error) {
 		&i.Name,
 		&i.Url,
 		&i.UserID,
+		&i.LastFetchedAt,
+	)
+	return i, err
+}
+
+const getNextFeedToFetch = `-- name: GetNextFeedToFetch :one
+SELECT
+    id,
+    name,
+    url,
+    last_fetched_at
+FROM
+    feeds
+ORDER BY
+    last_fetched_at ASC NULLS FIRST
+LIMIT
+    1
+`
+
+type GetNextFeedToFetchRow struct {
+	ID            uuid.UUID
+	Name          string
+	Url           string
+	LastFetchedAt sql.NullTime
+}
+
+func (q *Queries) GetNextFeedToFetch(ctx context.Context) (GetNextFeedToFetchRow, error) {
+	row := q.db.QueryRowContext(ctx, getNextFeedToFetch)
+	var i GetNextFeedToFetchRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Url,
 		&i.LastFetchedAt,
 	)
 	return i, err
