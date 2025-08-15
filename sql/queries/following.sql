@@ -18,11 +18,3 @@ FROM
     JOIN feeds f ON f.id=iff.feed_id
 GROUP BY
     iff.id;
-
--- name: GetFeedByUrl :one
-SELECT
-    *
-FROM
-    feeds
-WHERE
-    feeds.url=$1;
