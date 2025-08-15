@@ -158,7 +158,7 @@ func HandleShowAllFeedFollowsForUser(st *state, cmd command) error {
 	fmt.Printf("Followed feeds of user %s:\n", username)
 
 	for i, row := range res {
-		fmt.Printf("%v. %s", i, row.FeedName)
+		fmt.Printf("%v. %s\n", i+1, row.FeedName)
 	}
 
 	return nil

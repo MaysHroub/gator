@@ -317,10 +317,22 @@ func TestFollowFeedHandler_ValidFollowing(t *testing.T) {
 
 func TestGetFeedFollowForUser_UsernameGivenInCmndArgs(t *testing.T) {
 	username := "mays"
+	feedID1, feedID2 := uuid.New(), uuid.New()
+	feedname1, feedname2 := "feed example 1", "feed example 2"
+	feedFollowRecords := []database.GetFeedFollowsForUserRow{
+		{
+			FeedID: feedID1,
+			FeedName: feedname1,
+		},
+		{
+			FeedID: feedID2,
+			FeedName: feedname2,
+		},
+	}
 
 	mockCfg := config.MockConfigService{}
 	mockDB := repository.MockRepository{}
-	mockDB.On("GetFeedFollowsForUser", mock.Anything, username).Return([]database.GetFeedFollowsForUserRow{}, nil)
+	mockDB.On("GetFeedFollowsForUser", mock.Anything, username).Return(feedFollowRecords, nil)
 
 	st := NewState(&mockCfg, &mockDB)
 	cmd := command{name: "following", args: []string{username}}
@@ -334,12 +346,24 @@ func TestGetFeedFollowForUser_UsernameGivenInCmndArgs(t *testing.T) {
 
 func TestGetFeedFollowForUser_NoUsernameGivenInCmndArgs(t *testing.T) {
 	username := "mays"
+	feedID1, feedID2 := uuid.New(), uuid.New()
+	feedname1, feedname2 := "feed example 1", "feed example 2"
+	feedFollowRecords := []database.GetFeedFollowsForUserRow{
+		{
+			FeedID: feedID1,
+			FeedName: feedname1,
+		},
+		{
+			FeedID: feedID2,
+			FeedName: feedname2,
+		},
+	}
 
 	mockCfg := config.MockConfigService{}
 	mockCfg.On("GetCurrentUsername").Return(username)
 
 	mockDB := repository.MockRepository{}
-	mockDB.On("GetFeedFollowsForUser", mock.Anything, username).Return([]database.GetFeedFollowsForUserRow{}, nil)
+	mockDB.On("GetFeedFollowsForUser", mock.Anything, username).Return(feedFollowRecords, nil)
 
 	st := NewState(&mockCfg, &mockDB)
 	cmd := command{name: "following"}
