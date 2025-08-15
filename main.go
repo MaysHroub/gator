@@ -43,6 +43,8 @@ func main() {
 	commands.Register("agg", cmd.HandleAgg)
 	commands.Register("addfeed", cmd.HandleAddFeed)
 	commands.Register("feeds", cmd.HandleShowAllFeeds)
+	commands.Register("follow", cmd.HandleFollowFeedByURL)
+	commands.Register("following", cmd.HandleShowAllFeedFollowsForUser)
 
 	cmnd := cmd.ParseCliArgs(os.Args...)
 
