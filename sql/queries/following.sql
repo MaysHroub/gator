@@ -14,10 +14,8 @@ SELECT
     u.name AS user_name
 FROM
     inserted_feed_follow iff
-    JOIN users u ON u.id=iff.user_if
-    JOIN feeds f ON f.id=iff.feed_id
-GROUP BY
-    iff.id;
+    JOIN users u ON u.id=iff.user_id
+    JOIN feeds f ON f.id=iff.feed_id;
 
 -- name: GetFeedFollowsForUser :many
 SELECT

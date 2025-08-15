@@ -208,41 +208,35 @@ func TestListUsersNamesHandlers(t *testing.T) {
 
 func TestAddFeedHandler_ValidAddition(t *testing.T) {
 	feedName := "feedname"
-	userID := uuid.NullUUID{UUID: uuid.New(), Valid: true}
-	userName := "mays"
-	cmdName := "addfeed"
 	feedURL := "https://example.com"
+	user := database.User{
+		ID: uuid.New(),
+		Name: "mays",
+	}
 
 	feedNameAndUserIDMatcher := mock.MatchedBy(func(p database.CreateFeedParams) bool {
-		return p.Name == feedName && p.UserID == userID
+		return p.Name == feedName && p.UserID.UUID == user.ID
 	})
 	userIDMatcher := mock.MatchedBy(func(p database.CreateFeedFollowParams) bool {
-		return p.UserID == userID.UUID
+		return p.UserID == user.ID
 	})
 
-	mockConfig := config.MockConfigService{}
-	mockConfig.On("GetCurrentUsername").Return(userName)
-
 	mockDB := repository.MockRepository{}
-	mockDB.On("GetUserByName", mock.Anything, userName).
-		Return(database.User{ID: userID.UUID, Name: userName}, nil)
 	mockDB.On("CreateFeed", mock.Anything, feedNameAndUserIDMatcher).
-		Return(database.Feed{Name: feedName, UserID: userID}, nil)
+		Return(database.Feed{Name: feedName, UserID: uuid.NullUUID{UUID: user.ID, Valid: true}}, nil)
 	mockDB.On("CreateFeedFollow", mock.Anything, userIDMatcher).
 		Return([]database.CreateFeedFollowRow{}, nil)
 
-	st := NewState(&mockConfig, &mockDB)
+	st := NewState(nil, &mockDB)
 
 	cmd := command{
-		name: cmdName,
+		name: "addfeed",
 		args: []string{feedName, feedURL},
 	}
 
-	err := HandleAddFeed(st, cmd)
+	err := HandleAddFeed(st, cmd, user)
 	require.NoError(t, err)
 
-	mockConfig.AssertCalled(t, "GetCurrentUsername")
-	mockDB.AssertCalled(t, "GetUserByName", mock.Anything, userName)
 	mockDB.AssertCalled(t, "CreateFeed", mock.Anything, feedNameAndUserIDMatcher)
 	mockDB.AssertCalled(t, "CreateFeedFollow", mock.Anything, userIDMatcher)
 }
@@ -287,18 +281,14 @@ func TestShowAllFeedsHandler(t *testing.T) {
 }
 
 func TestFollowFeedHandler_ValidFollowing(t *testing.T) {
-	feedID, userID := uuid.New(), uuid.New()
-	feedname, username := "feed example", "mays"
+	feedID := uuid.New()
+	feedname := "feed example"
 	feedURL := "https://example.com"
+	user := database.User{
+		Name: "mays",
+	}
 
-	mockCfg := config.MockConfigService{}
-	mockCfg.On("GetCurrentUsername").Return(username)
-	
 	mockDB := repository.MockRepository{}
-	mockDB.On("GetUserByName", mock.Anything, username).Return(database.User{
-		ID: userID,
-		Name: feedname,
-	}, nil)
 	mockDB.On("GetFeedByURL", mock.Anything, feedURL).Return(database.Feed{
 		ID: feedID,
 		Name: feedname,
@@ -306,23 +296,24 @@ func TestFollowFeedHandler_ValidFollowing(t *testing.T) {
 	}, nil)
 
 	createFeedFollowParamsMatcher := mock.MatchedBy(func(p database.CreateFeedFollowParams) bool {
-		return p.FeedID == feedID && p.UserID == userID
+		return p.FeedID == feedID && p.UserID == user.ID
 	})
 	mockDB.On("CreateFeedFollow", mock.Anything, createFeedFollowParamsMatcher).Return([]database.CreateFeedFollowRow{}, nil)
 
-	st := NewState(&mockCfg, &mockDB)
+	st := NewState(nil, &mockDB)
 	cmd := command{name: "follow", args: []string{feedURL}}
 
-	err := HandleFollowFeedByURL(st, cmd)
+	err := HandleFollowFeedByURL(st, cmd, user)
 	require.NoError(t, err)
 
-	mockCfg.AssertCalled(t, "GetCurrentUsername")
 	mockDB.AssertCalled(t, "GetFeedByURL", mock.Anything, feedURL)
 	mockDB.AssertCalled(t, "CreateFeedFollow", mock.Anything, createFeedFollowParamsMatcher)
 }
 
 func TestGetFeedFollowForUser_UsernameGivenInCmndArgs(t *testing.T) {
-	username := "mays"
+	user := database.User{
+		Name: "mays",
+	}
 	feedID1, feedID2 := uuid.New(), uuid.New()
 	feedname1, feedname2 := "feed example 1", "feed example 2"
 	feedFollowRecords := []database.GetFeedFollowsForUserRow{
@@ -336,22 +327,22 @@ func TestGetFeedFollowForUser_UsernameGivenInCmndArgs(t *testing.T) {
 		},
 	}
 
-	mockCfg := config.MockConfigService{}
 	mockDB := repository.MockRepository{}
-	mockDB.On("GetFeedFollowsForUser", mock.Anything, username).Return(feedFollowRecords, nil)
+	mockDB.On("GetFeedFollowsForUser", mock.Anything, user.Name).Return(feedFollowRecords, nil)
 
-	st := NewState(&mockCfg, &mockDB)
-	cmd := command{name: "following", args: []string{username}}
+	st := NewState(nil, &mockDB)
+	cmd := command{name: "following", args: []string{user.Name}}
 
-	err := HandleShowAllFeedFollowsForUser(st, cmd)
+	err := HandleShowAllFeedFollowsForUser(st, cmd, user)
 	require.NoError(t, err)
 
-	mockDB.AssertCalled(t, "GetFeedFollowsForUser", mock.Anything, username)
-	mockCfg.AssertNotCalled(t, "GetCurrentUsername")
+	mockDB.AssertCalled(t, "GetFeedFollowsForUser", mock.Anything, user.Name)
 }
 
 func TestGetFeedFollowForUser_NoUsernameGivenInCmndArgs(t *testing.T) {
-	username := "mays"
+	user := database.User{
+		Name: "mays",
+	}
 	feedID1, feedID2 := uuid.New(), uuid.New()
 	feedname1, feedname2 := "feed example 1", "feed example 2"
 	feedFollowRecords := []database.GetFeedFollowsForUserRow{
@@ -365,18 +356,14 @@ func TestGetFeedFollowForUser_NoUsernameGivenInCmndArgs(t *testing.T) {
 		},
 	}
 
-	mockCfg := config.MockConfigService{}
-	mockCfg.On("GetCurrentUsername").Return(username)
-
 	mockDB := repository.MockRepository{}
-	mockDB.On("GetFeedFollowsForUser", mock.Anything, username).Return(feedFollowRecords, nil)
+	mockDB.On("GetFeedFollowsForUser", mock.Anything, user.Name).Return(feedFollowRecords, nil)
 
-	st := NewState(&mockCfg, &mockDB)
+	st := NewState(nil, &mockDB)
 	cmd := command{name: "following"}
 
-	err := HandleShowAllFeedFollowsForUser(st, cmd)
+	err := HandleShowAllFeedFollowsForUser(st, cmd, user)
 	require.NoError(t, err)
 
-	mockDB.AssertCalled(t, "GetFeedFollowsForUser", mock.Anything, username)
-	mockCfg.AssertCalled(t, "GetCurrentUsername")
+	mockDB.AssertCalled(t, "GetFeedFollowsForUser", mock.Anything, user.Name)
 }

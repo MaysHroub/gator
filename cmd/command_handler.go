@@ -77,12 +77,12 @@ func HandleAgg(st *state, cmd command) error {
 	return nil
 }
 
-func HandleAddFeed(st *state, cmd command) error {
+func HandleAddFeed(st *state, cmd command, user database.User) error {
 	if len(cmd.args) < 2 {
 		return fmt.Errorf("no enough args for %s", cmd.name)
 	}
 
-	userID := getCurrentUserID(st)
+	userID := user.ID
 	feedID := uuid.New()
 
 	createFeedParams := database.CreateFeedParams{
@@ -91,14 +91,14 @@ func HandleAddFeed(st *state, cmd command) error {
 		Url:       cmd.args[1],
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		UserID:    userID,
+		UserID:    uuid.NullUUID{UUID: userID, Valid: true},
 	}
 
 	createFollowFeedParam := database.CreateFeedFollowParams{
 		ID: uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		UserID: userID.UUID,
+		UserID: userID,
 		FeedID: feedID,
 	}
 	_, err := st.db.CreateFeed(context.Background(), createFeedParams)
@@ -117,30 +117,25 @@ func HandleShowAllFeeds(st *state, cmd command) error {
 		return err
 	}
 	for _, row := range rows {
-		fmt.Printf("Feed name: %s\nFeed URL: %s\nUser name: %s\n------------------------>\n", 
+		fmt.Printf("Feed name: %s\nFeed URL: %s\nFeed creator name: %s\n------------------------>\n", 
 					row.Feedname, row.Url, row.Username)
 	}
 	return nil
 }
 
-func HandleFollowFeedByURL(st *state, cmd command) error {
+func HandleFollowFeedByURL(st *state, cmd command, user database.User) error {
 	if len(cmd.args) < 1 {
 		return fmt.Errorf("no enough args for %s", cmd.name)
 	}
-	ctx := context.Background()
+
 	feedURL := cmd.args[0]
-	username := st.cfg.GetCurrentUsername()
 
-	feed, err := st.db.GetFeedByURL(ctx, feedURL)
-	if err != nil {
-		return err
-	}
-	user, err := st.db.GetUserByName(ctx, username)
+	feed, err := st.db.GetFeedByURL(context.Background(), feedURL)
 	if err != nil {
 		return err
 	}
 
-	_, err = st.db.CreateFeedFollow(ctx, database.CreateFeedFollowParams{
+	_, err = st.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
 		ID: uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -151,15 +146,15 @@ func HandleFollowFeedByURL(st *state, cmd command) error {
 		return err
 	}
 
-	fmt.Printf("User %s is following feed '%s' of ID %v\n", username, feed.Name, feed.ID)
+	fmt.Printf("User %s is following feed '%s' of ID %v\n", user.Name, feed.Name, feed.ID)
 
 	return nil 
 }
 
-func HandleShowAllFeedFollowsForUser(st *state, cmd command) error {
+func HandleShowAllFeedFollowsForUser(st *state, cmd command, user database.User) error {
 	var username string
 	if len(cmd.args) == 0 {
-		username = st.cfg.GetCurrentUsername()
+		username = user.Name
 	} else {
 		username = cmd.args[0]
 	}
@@ -178,15 +173,6 @@ func HandleShowAllFeedFollowsForUser(st *state, cmd command) error {
 	return nil
 }
 
-func getCurrentUserID(st *state) uuid.NullUUID {
-	currentUsername := st.cfg.GetCurrentUsername()
-	user, err := st.db.GetUserByName(context.Background(), currentUsername)
-	if err != nil {
-		return uuid.NullUUID{}
-	}
-	return uuid.NullUUID{UUID: user.ID, Valid: true}
-}
-
 func doesUserExist(st *state, name string) bool {
 	usr, err := st.db.GetUserByName(context.Background(), name)
 	if err != nil {
@@ -196,4 +182,14 @@ func doesUserExist(st *state, name string) bool {
 		return true
 	}
 	return false
+}
+
+func MiddlewareLoggedIn(handler func(st *state, cmd command, user database.User) error) func(st *state, cmd command) error {
+	return func(st *state, cmd command) error {
+		user, err := st.db.GetUserByName(context.Background(), st.cfg.GetCurrentUsername())
+		if err != nil {
+			return err
+		}
+		return handler(st, cmd, user)
+	}
 }
