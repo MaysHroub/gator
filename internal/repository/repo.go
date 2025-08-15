@@ -13,4 +13,6 @@ type Repository interface {
 	GetNamesOfAllUsers(ctx context.Context) ([]string, error)
 	CreateFeed(ctx context.Context, arg database.CreateFeedParams) (database.Feed, error)
 	GetAllFeeds(ctx context.Context) ([]database.GetAllFeedsRow, error)
+	GetFeedByURL(ctx context.Context, url string) (database.Feed, error)
+	CreateFeedFollow(ctx context.Context, arg database.CreateFeedFollowParams) ([]database.CreateFeedFollowRow, error)
 }

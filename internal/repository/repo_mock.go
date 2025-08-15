@@ -40,3 +40,13 @@ func (mk *MockRepository) GetAllFeeds(ctx context.Context) ([]database.GetAllFee
 	args := mk.Called(ctx)
 	return args.Get(0).([]database.GetAllFeedsRow), args.Error(1)
 }
+
+func (mk *MockRepository) GetFeedByURL(ctx context.Context, url string) (database.Feed, error) {
+	args := mk.Called(ctx, url)
+	return args.Get(0).(database.Feed), args.Error(1)
+}
+
+func (mk *MockRepository) CreateFeedFollow(ctx context.Context, arg database.CreateFeedFollowParams) ([]database.CreateFeedFollowRow, error) {
+	args := mk.Called(ctx, arg)
+	return args.Get(0).([]database.CreateFeedFollowRow), args.Error(1)
+}
