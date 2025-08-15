@@ -45,6 +45,7 @@ func main() {
 	commands.Register("feeds", cmd.HandleShowAllFeeds)
 	commands.Register("follow", cmd.MiddlewareLoggedIn(cmd.HandleFollowFeedByURL))
 	commands.Register("following", cmd.MiddlewareLoggedIn(cmd.HandleShowAllFeedFollowsForUser))
+	commands.Register("unfollow", cmd.MiddlewareLoggedIn(cmd.HandleUnfollowFeedByURL))
 
 	cmnd := cmd.ParseCliArgs(os.Args...)
 

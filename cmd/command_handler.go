@@ -13,7 +13,7 @@ import (
 
 func HandleLogin(st *state, cmd command) error {
 	if len(cmd.args) == 0 {
-		return fmt.Errorf("no enough args for %s", cmd.name)
+		return fmt.Errorf("no enough args for %s; require username", cmd.name)
 	}
 	if !doesUserExist(st, cmd.args[0]) {
 		return errors.New("user with given name doesn't exists")
@@ -26,7 +26,7 @@ func HandleLogin(st *state, cmd command) error {
 
 func HandleRegister(st *state, cmd command) error {
 	if len(cmd.args) == 0 {
-		return fmt.Errorf("no enough args for %s", cmd.name)
+		return fmt.Errorf("no enough args for %s; require username", cmd.name)
 	}
 	if doesUserExist(st, cmd.args[0]) {
 		return errors.New("user with given name already exists")
@@ -79,7 +79,7 @@ func HandleAgg(st *state, cmd command) error {
 
 func HandleAddFeed(st *state, cmd command, user database.User) error {
 	if len(cmd.args) < 2 {
-		return fmt.Errorf("no enough args for %s", cmd.name)
+		return fmt.Errorf("no enough args for %s; require feed name and URL", cmd.name)
 	}
 
 	userID := user.ID
@@ -125,7 +125,7 @@ func HandleShowAllFeeds(st *state, cmd command) error {
 
 func HandleFollowFeedByURL(st *state, cmd command, user database.User) error {
 	if len(cmd.args) < 1 {
-		return fmt.Errorf("no enough args for %s", cmd.name)
+		return fmt.Errorf("no enough args for %s; require feed URL", cmd.name)
 	}
 
 	feedURL := cmd.args[0]
@@ -174,7 +174,14 @@ func HandleShowAllFeedFollowsForUser(st *state, cmd command, user database.User)
 }
 
 func HandleUnfollowFeedByURL(st *state, cmd command, user database.User) error {
-	panic("unimplemented")
+	if len(cmd.args) < 1 {
+		return fmt.Errorf("no enough args for %s; require feed URL", cmd.name)
+	}
+	err := st.db.DeleteFeedFollowByUserAndURL(context.Background(), database.DeleteFeedFollowByUserAndURLParams{
+		Name: user.Name,
+		Url: cmd.args[0],
+	})
+	return err 
 }
 
 func doesUserExist(st *state, name string) bool {
