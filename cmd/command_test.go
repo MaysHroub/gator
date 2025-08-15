@@ -279,3 +279,41 @@ func TestShowAllFeedsHandler(t *testing.T) {
 
 	mockDB.AssertCalled(t, "GetAllFeeds", mock.Anything)
 }
+
+func TestFollowFeedHandler_ValidFollowing(t *testing.T) {
+	feedID, userID := uuid.New(), uuid.New()
+	feedname, username := "feed example", "mays"
+	feedURL := "https://example.com"
+
+	mockCfg := config.MockConfigService{}
+	mockCfg.On("GetCurrentUsername").Return(username)
+	
+	mockDB := repository.MockRepository{}
+	mockDB.On("GetFeedByURL", mock.Anything, feedURL).Return(database.Feed{
+		Name: feedname,
+		Url: feedURL,
+	}, nil)
+	mockDB.On("CreateFeedFollow", mock.Anything, database.CreateFeedFollowParams{
+		UserID: userID,
+		FeedID: feedID,
+	}).Return(database.CreateFeedFollowRow{
+		UserID: userID,
+		FeedID: feedID,
+		UserName: username,
+		FeedName: feedname,
+	}, nil)
+
+	paramsMatcher := mock.MatchedBy(func(p database.CreateFeedFollowParams) bool {
+		return p.FeedID == feedID && p.UserID == userID
+	})
+
+	st := NewState(&mockCfg, &mockDB)
+	cmd := command{name: "follow", args: []string{feedURL}}
+
+	err := HandleFollowFeedByURL(st, cmd)
+	require.NoError(t, err)
+
+	mockCfg.AssertCalled(t, "GetCurrentUsername")
+	mockDB.AssertCalled(t, "GetFeedByURL", mock.Anything, feedURL)
+	mockDB.AssertCalled(t, "CreateFeedFollow", paramsMatcher)
+}

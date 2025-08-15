@@ -15,7 +15,7 @@ FROM
     feeds f
     JOIN users u ON u.id=f.user_id;
 
--- name: GetFeedByUrl :one
+-- name: GetFeedByURL :one
 SELECT
     *
 FROM

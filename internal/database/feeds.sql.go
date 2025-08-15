@@ -90,7 +90,7 @@ func (q *Queries) GetAllFeeds(ctx context.Context) ([]GetAllFeedsRow, error) {
 	return items, nil
 }
 
-const getFeedByUrl = `-- name: GetFeedByUrl :one
+const getFeedByURL = `-- name: GetFeedByURL :one
 SELECT
     id, created_at, updated_at, name, url, user_id
 FROM
@@ -99,8 +99,8 @@ WHERE
     feeds.url=$1
 `
 
-func (q *Queries) GetFeedByUrl(ctx context.Context, url string) (Feed, error) {
-	row := q.db.QueryRowContext(ctx, getFeedByUrl, url)
+func (q *Queries) GetFeedByURL(ctx context.Context, url string) (Feed, error) {
+	row := q.db.QueryRowContext(ctx, getFeedByURL, url)
 	var i Feed
 	err := row.Scan(
 		&i.ID,

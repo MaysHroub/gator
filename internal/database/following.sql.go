@@ -19,8 +19,7 @@ WITH
             feed_follows (id, created_at, updated_at, user_id, feed_id)
         VALUES
             ($1, $2, $3, $4, $5)
-        RETURNING
-id, created_at, updated_at, user_id, feed_id
+        RETURNING id, created_at, updated_at, user_id, feed_id
     )
 SELECT
     iff.id, iff.created_at, iff.updated_at, iff.user_id, iff.feed_id,
