@@ -68,13 +68,18 @@ func HandleListAllNames(st *state, cmd command) error {
 }
 
 func HandleAgg(st *state, cmd command) error {
-	url := "https://www.wagslane.dev/index.xml"
-	rssFeed, err := rss.FetchFeed(url)
+	if len(cmd.args) == 0 {
+		return fmt.Errorf("no enough args for %s; require time between requests", cmd.name)
+	}
+	timeBetweenReqs, err := time.ParseDuration(cmd.args[0])
 	if err != nil {
 		return err
 	}
-	fmt.Println(rssFeed)
-	return nil
+	fmt.Printf("Collecting feeds every %v\n", timeBetweenReqs)
+	ticker := time.NewTicker(timeBetweenReqs)
+	for ; ; <- ticker.C {
+		rss.ScrapeFeeds(st.db)
+	}
 }
 
 func HandleAddFeed(st *state, cmd command, user database.User) error {
