@@ -1,7 +1,6 @@
 package rss
 
 import (
-	"context"
 	"fmt"
 	"github/MaysHroub/gator/internal/database"
 	"github/MaysHroub/gator/internal/repository"
@@ -45,7 +44,7 @@ func TestFetchFeed_ValidFetch(t *testing.T) {
 	}))
 	defer svr.Close()
 
-	rssFeed, err := FetchFeed(context.Background(), svr.URL)
+	rssFeed, err := FetchFeed(svr.URL)
 
 	require.NoError(t, err)
 	assert.Equal(t, feedTitle, rssFeed.Channel.Title)
@@ -89,7 +88,8 @@ func TestScrapeFeeds(t *testing.T) {
 	}, nil)
 	mockDB.On("MarkFeedFetched", mock.Anything, feedID).Return(nil)
 
-	ScrapeFeeds(&mockDB)
+	err := ScrapeFeeds(&mockDB)
+	require.NoError(t, err) 
 
 	mockDB.AssertCalled(t, "GetNextFeedToFetch", mock.Anything)
 	mockDB.AssertCalled(t, "MarkFeedFetched", mock.Anything, feedID)

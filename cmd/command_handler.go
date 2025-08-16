@@ -69,7 +69,7 @@ func HandleListAllNames(st *state, cmd command) error {
 
 func HandleAgg(st *state, cmd command) error {
 	url := "https://www.wagslane.dev/index.xml"
-	rssFeed, err := rss.FetchFeed(context.Background(), url)
+	rssFeed, err := rss.FetchFeed(url)
 	if err != nil {
 		return err
 	}

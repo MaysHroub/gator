@@ -30,7 +30,7 @@ type RSSItem struct {
 	PubDate     string `xml:"pubDate"`
 }
 
-func FetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
+func FetchFeed(feedURL string) (*RSSFeed, error) {
 	client := gatorapi.NewClient(timeout)
 	data, err := client.Get(feedURL)
 	if err != nil {
@@ -57,6 +57,23 @@ func unescapeRssFeedFields(rssFeed *RSSFeed) {
 	}
 }
 
-func ScrapeFeeds(repository.Repository) {
-	
+func ScrapeFeeds(db repository.Repository) error {
+	feed, err := db.GetNextFeedToFetch(context.Background())
+	if err != nil {
+		return err
+	}
+	db.MarkFeedFetched(context.Background(), feed.ID)
+
+	rssFeed, err := FetchFeed(feed.Url)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Items of %s with link %s:\n", rssFeed.Channel.Title, rssFeed.Channel.Link)
+
+	for _, item := range rssFeed.Channel.Items {
+		fmt.Println(item.Title)
+	}
+
+	return nil 
 }
