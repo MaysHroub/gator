@@ -4,6 +4,8 @@ package repository
 import (
 	"context"
 	"github/MaysHroub/gator/internal/database"
+
+	"github.com/google/uuid"
 )
 
 type Repository interface {
@@ -17,4 +19,6 @@ type Repository interface {
 	CreateFeedFollow(ctx context.Context, arg database.CreateFeedFollowParams) ([]database.CreateFeedFollowRow, error)
 	GetFeedFollowsForUser(ctx context.Context, name string) ([]database.GetFeedFollowsForUserRow, error)
 	DeleteFeedFollowByUserAndURL(ctx context.Context, arg database.DeleteFeedFollowByUserAndURLParams) error 
+	GetNextFeedToFetch(ctx context.Context) (database.GetNextFeedToFetchRow, error)
+	MarkFeedFetched(ctx context.Context, id uuid.UUID) error
 }

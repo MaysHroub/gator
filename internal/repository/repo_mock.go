@@ -4,6 +4,7 @@ import (
 	"context"
 	"github/MaysHroub/gator/internal/database"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -58,5 +59,15 @@ func (mk *MockRepository) GetFeedFollowsForUser(ctx context.Context, name string
 
 func (mk *MockRepository) DeleteFeedFollowByUserAndURL(ctx context.Context, arg database.DeleteFeedFollowByUserAndURLParams) error {
 	args := mk.Called(ctx, arg)
+	return args.Error(0)
+}
+
+func (mk *MockRepository) GetNextFeedToFetch(ctx context.Context) (database.GetNextFeedToFetchRow, error) {
+	args := mk.Called(ctx)
+	return args.Get(0).(database.GetNextFeedToFetchRow), args.Error(1)
+}
+
+func (mk *MockRepository) MarkFeedFetched(ctx context.Context, id uuid.UUID) error {
+	args := mk.Called(ctx, id)
 	return args.Error(0)
 }

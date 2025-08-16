@@ -95,11 +95,11 @@ func HandleAddFeed(st *state, cmd command, user database.User) error {
 	}
 
 	createFollowFeedParam := database.CreateFeedFollowParams{
-		ID: uuid.New(),
+		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		UserID: userID,
-		FeedID: feedID,
+		UserID:    userID,
+		FeedID:    feedID,
 	}
 	_, err := st.db.CreateFeed(context.Background(), createFeedParams)
 	if err != nil {
@@ -117,8 +117,8 @@ func HandleShowAllFeeds(st *state, cmd command) error {
 		return err
 	}
 	for _, row := range rows {
-		fmt.Printf("Feed name: %s\nFeed URL: %s\nFeed creator name: %s\n------------------------>\n", 
-					row.Feedname, row.Url, row.Username)
+		fmt.Printf("Feed name: %s\nFeed URL: %s\nFeed creator name: %s\n------------------------>\n",
+			row.Feedname, row.Url, row.Username)
 	}
 	return nil
 }
@@ -136,11 +136,11 @@ func HandleFollowFeedByURL(st *state, cmd command, user database.User) error {
 	}
 
 	_, err = st.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
-		ID: uuid.New(),
+		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		UserID: user.ID,
-		FeedID: feed.ID,
+		UserID:    user.ID,
+		FeedID:    feed.ID,
 	})
 	if err != nil {
 		return err
@@ -148,7 +148,7 @@ func HandleFollowFeedByURL(st *state, cmd command, user database.User) error {
 
 	fmt.Printf("User %s is following feed '%s' of ID %v\n", user.Name, feed.Name, feed.ID)
 
-	return nil 
+	return nil
 }
 
 func HandleShowAllFeedFollowsForUser(st *state, cmd command, user database.User) error {
@@ -179,9 +179,9 @@ func HandleUnfollowFeedByURL(st *state, cmd command, user database.User) error {
 	}
 	err := st.db.DeleteFeedFollowByUserAndURL(context.Background(), database.DeleteFeedFollowByUserAndURLParams{
 		Name: user.Name,
-		Url: cmd.args[0],
+		Url:  cmd.args[0],
 	})
-	return err 
+	return err
 }
 
 func doesUserExist(st *state, name string) bool {

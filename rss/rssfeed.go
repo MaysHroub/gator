@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"github/MaysHroub/gator/internal/gatorapi"
+	"github/MaysHroub/gator/internal/repository"
 	"html"
 	"time"
 )
@@ -54,4 +55,8 @@ func unescapeRssFeedFields(rssFeed *RSSFeed) {
 		rssFeed.Channel.Items[i].Title = html.UnescapeString(rssFeed.Channel.Items[i].Title)
 		rssFeed.Channel.Items[i].Description = html.UnescapeString(rssFeed.Channel.Items[i].Description)
 	}
+}
+
+func ScrapeFeeds(repository.Repository) {
+	
 }
