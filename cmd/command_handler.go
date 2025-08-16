@@ -18,9 +18,14 @@ func HandleLogin(st *state, cmd command) error {
 	if !doesUserExist(st, cmd.args[0]) {
 		return errors.New("user with given name doesn't exists")
 	}
-	st.cfg.SetCurrentUsername(cmd.args[0])
+	username := cmd.args[0]
+	if st.cfg.GetCurrentUsername() == username {
+		fmt.Printf("user %s is already logged in\n", username)
+		return nil
+	}
+	st.cfg.SetCurrentUsername(username)
 	st.cfg.Save()
-	fmt.Println("current username got logged in")
+	fmt.Printf("user %s got logged in\n", username)
 	return nil
 }
 
@@ -31,6 +36,7 @@ func HandleRegister(st *state, cmd command) error {
 	if doesUserExist(st, cmd.args[0]) {
 		return errors.New("user with given name already exists")
 	}
+	username := cmd.args[0]
 	ctx := context.Background()
 	params := database.CreateUserParams{
 		ID:        uuid.New(),
@@ -42,14 +48,19 @@ func HandleRegister(st *state, cmd command) error {
 	if err != nil {
 		return err
 	}
-	st.cfg.SetCurrentUsername(cmd.args[0])
+	st.cfg.SetCurrentUsername(username)
 	st.cfg.Save()
-	fmt.Println("current username got registered and logged in")
+	fmt.Printf("user %s got registered and logged in\n", username)
 	return nil
 }
 
 func HandleResetUsers(st *state, cmd command) error {
-	return st.db.DeleteAllUsers(context.Background())
+	err := st.db.DeleteAllUsers(context.Background())
+	if err != nil {
+		return err
+	}
+	fmt.Println("all users were deleted")
+	return nil
 }
 
 func HandleListAllNames(st *state, cmd command) error {
@@ -89,11 +100,13 @@ func HandleAddFeed(st *state, cmd command, user database.User) error {
 
 	userID := user.ID
 	feedID := uuid.New()
+	feedName := cmd.args[0]
+	feedURL := cmd.args[1]
 
 	createFeedParams := database.CreateFeedParams{
 		ID:        feedID,
-		Name:      cmd.args[0],
-		Url:       cmd.args[1],
+		Name:      feedName,
+		Url:       feedURL,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		UserID:    uuid.NullUUID{UUID: userID, Valid: true},
@@ -112,8 +125,11 @@ func HandleAddFeed(st *state, cmd command, user database.User) error {
 	}
 
 	_, err = st.db.CreateFeedFollow(context.Background(), createFollowFeedParam)
-
-	return err
+	if err != nil {
+		return err
+	}
+	fmt.Printf("feed %s is added\n", feedName)
+	return nil
 }
 
 func HandleShowAllFeeds(st *state, cmd command) error {
@@ -151,7 +167,7 @@ func HandleFollowFeedByURL(st *state, cmd command, user database.User) error {
 		return err
 	}
 
-	fmt.Printf("User %s is following feed '%s' of ID %v\n", user.Name, feed.Name, feed.ID)
+	fmt.Printf("you are now following feed '%s' of URL %v\n", feed.Name, feedURL)
 
 	return nil
 }
@@ -169,6 +185,11 @@ func HandleShowAllFeedFollowsForUser(st *state, cmd command, user database.User)
 		return err
 	}
 
+	if len(res) == 0 {
+		fmt.Printf("no follow feeds for user %s\n", username)
+		return nil 
+	}
+
 	fmt.Printf("Followed feeds of user %s:\n", username)
 
 	for i, row := range res {
@@ -182,11 +203,16 @@ func HandleUnfollowFeedByURL(st *state, cmd command, user database.User) error {
 	if len(cmd.args) < 1 {
 		return fmt.Errorf("no enough args for %s; require feed URL", cmd.name)
 	}
+	feedURL := cmd.args[0]
 	err := st.db.DeleteFeedFollowByUserAndURL(context.Background(), database.DeleteFeedFollowByUserAndURLParams{
 		Name: user.Name,
-		Url:  cmd.args[0],
+		Url:  feedURL,
 	})
-	return err
+	if err != nil {
+		return err
+	}
+	fmt.Printf("you no longer follow feed of URL %s\n", feedURL)
+	return nil 
 }
 
 func doesUserExist(st *state, name string) bool {
