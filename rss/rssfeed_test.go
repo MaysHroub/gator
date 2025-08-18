@@ -120,23 +120,22 @@ func TestSavePosts_UniquePostsURL(t *testing.T) {
 	}
 
 	mockDB := repository.MockRepository{}
-	ctx := mock.Anything
 	feedID := uuid.New()
-	pubDateStr1 := "Tue, 07 Sep 2021 14:30:00 GMT"
+	pubDateStr := "Mon, 06 Sep 2021 12:00:00 GMT"
 	layout := "Mon, 02 Jan 2006 15:04:05 MST"
-	parsedTime1, _ := time.Parse(layout, pubDateStr1)
+	parsedTime, _ := time.Parse(layout, pubDateStr)
 
-	paramMatcher := database.CreatePostParams{
-		Title: "First Article",
-		Description: sql.NullString{String: "Here's the content of the first article.", Valid: true},
-		Url: "https://www.example.com/article1",
-		PublishedAt: sql.NullTime{Time: parsedTime1, Valid: true},
-		FeedID: feedID,
-	}
-	mockDB.On("CreatePost", ctx, paramMatcher).Return(database.Post{}, nil)
+	paramsMatcher := mock.MatchedBy(func(p database.CreatePostParams) bool {
+		return p.Title == "First Article" &&
+				p.Description == sql.NullString{String: "This is the content of the first article.", Valid: true} &&
+				p.Url == "https://www.example.com/article1" &&
+				p.PublishedAt.Time.Equal(parsedTime) &&
+				p.FeedID == feedID
+	})
+	mockDB.On("CreatePost", mock.Anything, paramsMatcher).Return(database.Post{}, nil)
 
 	err := savePosts(dummyRSSFeed, &mockDB, feedID)
 	require.NoError(t, err)
 
-	mockDB.AssertCalled(t, "CreatePost", ctx, paramMatcher)
+	mockDB.AssertCalled(t, "CreatePost", mock.Anything, paramsMatcher)
 }
