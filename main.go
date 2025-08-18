@@ -52,7 +52,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"login",
 		"login <username>",
 		"Logs in a user to the CLI.",
-		"CLI Author",
+		"mhroub",
 		[]string{"login alice", "login bob"},
 		cmd.HandleLogin,
 	))
@@ -61,7 +61,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"register",
 		"register <username>",
 		"Registers a user and logs them in immediately.",
-		"CLI Author",
+		"mhroub",
 		[]string{"register alice"},
 		cmd.HandleRegister,
 	))
@@ -70,7 +70,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"users",
 		"users",
 		"Displays all registered users with '(current)' next to the logged-in user.",
-		"CLI Author",
+		"mhroub",
 		[]string{"users"},
 		cmd.HandleListAllNames,
 	))
@@ -79,7 +79,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"reset",
 		"reset",
 		"Deletes all registered users.",
-		"CLI Author",
+		"mhroub",
 		[]string{"reset"},
 		cmd.HandleResetUsers,
 	))
@@ -88,7 +88,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"agg",
 		"agg",
 		"Launches the feed aggregator in the background to fetch feeds and save posts in the database.",
-		"CLI Author",
+		"mhroub",
 		[]string{"agg"},
 		cmd.HandleAgg,
 	))
@@ -97,7 +97,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"addfeed",
 		"addfeed <feed-url>",
 		"Adds a feed to the database. The user who adds it will be marked as the creator and automatically follow the feed.",
-		"CLI Author",
+		"mhroub",
 		[]string{"addfeed https://example.com/rss"},
 		cmd.MiddlewareLoggedIn(cmd.HandleAddFeed),
 	))
@@ -106,7 +106,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"feeds",
 		"feeds",
 		"Displays all feeds added to the database.",
-		"CLI Author",
+		"mhroub",
 		[]string{"feeds"},
 		cmd.HandleShowAllFeeds,
 	))
@@ -115,7 +115,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"follow",
 		"follow <feed-url>",
 		"Follows a feed for the currently logged-in user.",
-		"CLI Author",
+		"mhroub",
 		[]string{"follow https://example.com/rss"},
 		cmd.MiddlewareLoggedIn(cmd.HandleFollowFeedByURL),
 	))
@@ -124,7 +124,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"unfollow",
 		"unfollow <feed-url>",
 		"Unfollows a feed for the currently logged-in user.",
-		"CLI Author",
+		"mhroub",
 		[]string{"unfollow https://example.com/rss"},
 		cmd.MiddlewareLoggedIn(cmd.HandleUnfollowFeedByURL),
 	))
@@ -133,7 +133,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"following",
 		"following [username]",
 		"Displays all feeds followed by the given username. If omitted, shows feeds followed by the currently logged-in user.",
-		"CLI Author",
+		"mhroub",
 		[]string{"following", "following alice"},
 		cmd.MiddlewareLoggedIn(cmd.HandleShowAllFeedFollowsForUser),
 	))
@@ -142,9 +142,18 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"browse",
 		"browse [limit]",
 		"Displays the latest posts. If limit is not provided, shows 2 posts. Each post shows title, description, and link.",
-		"CLI Author",
+		"mhroub",
 		[]string{"browse", "browse 5"},
 		cmd.MiddlewareLoggedIn(cmd.HandleBrowsePosts),
+	))
+
+	commands.Register("man", cmd.NewCommandInfo(
+		"man",                      
+		"man [command]",           
+		"Displays the manual page of the specified command. If no command is provided, it explains how to use 'man'.", 
+		"mhroub",               
+		[]string{"man", "man users", "man feeds"},
+		cmd.MiddlewareCommands(cmd.HandleShowManPage, commands),                 
 	))
 }
 

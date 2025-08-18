@@ -242,6 +242,42 @@ func HandleBrowsePosts(st *State, cmd Command, user database.User) error {
 	return nil
 }
 
+func HandleShowManPage(commands Commands, cmd Command) error {
+	var cmdNameArg string
+	if len(cmd.args) == 0 {
+		cmdNameArg = "man"
+	} else {
+		cmdNameArg = cmd.args[0]
+	}
+
+	cmdInfo := commands.cmds[cmdNameArg]
+
+	fmt.Printf("NAME\n")
+	fmt.Printf("    %s - %s\n\n", cmdInfo.name, cmdInfo.synopsis)
+
+	fmt.Printf("SYNOPSIS\n")
+	fmt.Printf("    %s\n\n", cmdInfo.synopsis)
+
+	fmt.Printf("DESCRIPTION\n")
+	fmt.Printf("    %s\n\n", cmdInfo.description)
+
+	if len(cmdInfo.examples) > 0 {
+		fmt.Printf("EXAMPLES\n")
+		for _, ex := range cmdInfo.examples {
+			fmt.Printf("    %s\n", ex)
+		}
+		fmt.Println()
+	}
+
+	if cmdInfo.author != "" {
+		fmt.Printf("AUTHOR\n")
+		fmt.Printf("    %s\n", cmdInfo.author)
+		fmt.Println()
+	}
+
+	return nil
+}
+
 func doesUserExist(st *State, name string) bool {
 	usr, err := st.db.GetUserByName(context.Background(), name)
 	if err != nil {
@@ -260,5 +296,11 @@ func MiddlewareLoggedIn(handler func(st *State, cmd Command, user database.User)
 			return err
 		}
 		return handler(st, cmd, user)
+	}
+}
+
+func MiddlewareCommands(handler func(Commands, Command) error, commands Commands) func(st *State, cmd Command) error {
+	return func(st *State, cmd Command) error {
+		return handler(commands, cmd)
 	}
 }
