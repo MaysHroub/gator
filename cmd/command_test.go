@@ -210,7 +210,7 @@ func TestAddFeedHandler_ValidAddition(t *testing.T) {
 	feedName := "feedname"
 	feedURL := "https://example.com"
 	user := database.User{
-		ID: uuid.New(),
+		ID:   uuid.New(),
 		Name: "mays",
 	}
 
@@ -245,25 +245,24 @@ func TestShowAllFeedsHandler(t *testing.T) {
 	rows := []database.GetAllFeedsRow{
 		{
 			Feedname: "feed1",
-			Url: "https://example1.com",
+			Url:      "https://example1.com",
 			Username: "user1",
 		},
 		{
 			Feedname: "feed1",
-			Url: "https://example1.com",
+			Url:      "https://example1.com",
 			Username: "user2",
 		},
 		{
 			Feedname: "feed2",
-			Url: "https://example1.com",
+			Url:      "https://example1.com",
 			Username: "user1",
 		},
 		{
 			Feedname: "feed2",
-			Url: "https://example1.com",
+			Url:      "https://example1.com",
 			Username: "user3",
 		},
-		
 	}
 
 	mockDB := repository.MockRepository{}
@@ -290,9 +289,9 @@ func TestFollowFeedHandler_ValidFollowing(t *testing.T) {
 
 	mockDB := repository.MockRepository{}
 	mockDB.On("GetFeedByURL", mock.Anything, feedURL).Return(database.Feed{
-		ID: feedID,
+		ID:   feedID,
 		Name: feedname,
-		Url: feedURL,
+		Url:  feedURL,
 	}, nil)
 
 	createFeedFollowParamsMatcher := mock.MatchedBy(func(p database.CreateFeedFollowParams) bool {
@@ -318,11 +317,11 @@ func TestGetFeedFollowForUser_UsernameGivenInCmndArgs(t *testing.T) {
 	feedname1, feedname2 := "feed example 1", "feed example 2"
 	feedFollowRecords := []database.GetFeedFollowsForUserRow{
 		{
-			FeedID: feedID1,
+			FeedID:   feedID1,
 			FeedName: feedname1,
 		},
 		{
-			FeedID: feedID2,
+			FeedID:   feedID2,
 			FeedName: feedname2,
 		},
 	}
@@ -347,11 +346,11 @@ func TestGetFeedFollowForUser_NoUsernameGivenInCmndArgs(t *testing.T) {
 	feedname1, feedname2 := "feed example 1", "feed example 2"
 	feedFollowRecords := []database.GetFeedFollowsForUserRow{
 		{
-			FeedID: feedID1,
+			FeedID:   feedID1,
 			FeedName: feedname1,
 		},
 		{
-			FeedID: feedID2,
+			FeedID:   feedID2,
 			FeedName: feedname2,
 		},
 	}
@@ -377,7 +376,7 @@ func TestUnfollowFeedHandler(t *testing.T) {
 	mockDB := repository.MockRepository{}
 	params := database.DeleteFeedFollowByUserAndURLParams{
 		Name: user.Name,
-		Url: feedURL,
+		Url:  feedURL,
 	}
 	mockDB.On("DeleteFeedFollowByUserAndURL", mock.Anything, params).Return(nil)
 
@@ -388,4 +387,35 @@ func TestUnfollowFeedHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	mockDB.AssertCalled(t, "DeleteFeedFollowByUserAndURL", mock.Anything, params)
+}
+
+func TestBrowseHandler(t *testing.T) {
+	user := database.User{
+		Name: "mays",
+	}
+	cmd := command{
+		name: "browse",
+	}
+	defaultLimit := 2
+	mockDB := repository.MockRepository{}
+	mockDB.On(
+		"GetPostsForUser", 
+		mock.Anything, 
+		database.GetPostsForUserParams{Name: user.Name, Limit: int32(defaultLimit)}).
+	Return(
+		[]database.Post{
+			{
+				Url: "https://example.com/post1",
+			},
+			{
+				Url: "https://example.com/post2",
+			},
+		}, nil)
+	
+	st := NewState(nil, &mockDB)
+	
+	err := HandleBrowsePosts(st, cmd, user)
+	require.NoError(t, err)
+	
+	mockDB.AssertCalled(t, "GetPostsForUser", mock.Anything, database.GetPostsForUserParams{Name: user.Name, Limit: int32(defaultLimit)})
 }

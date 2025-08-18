@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github/MaysHroub/gator/internal/database"
 	"github/MaysHroub/gator/rss"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -213,6 +214,29 @@ func HandleUnfollowFeedByURL(st *state, cmd command, user database.User) error {
 	}
 	fmt.Printf("you no longer follow feed of URL %s\n", feedURL)
 	return nil 
+}
+
+func HandleBrowsePosts(st *state, cmd command, user database.User) error {
+	const defaultLimit = 2
+	limit := defaultLimit
+	var err error 
+	if len(cmd.args) > 0 {
+		limit, err = strconv.Atoi(cmd.args[0])
+		if err != nil {
+			return err
+		}
+	}
+	posts, err := st.db.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
+		Name: user.Name,
+		Limit: int32(limit),
+	})
+	if err != nil {
+		return err
+	}
+	for _, post := range posts {
+		fmt.Println(post)
+	}
+	return nil
 }
 
 func doesUserExist(st *state, name string) bool {
