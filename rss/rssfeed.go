@@ -3,12 +3,17 @@ package rss
 
 import (
 	"context"
+	"database/sql"
 	"encoding/xml"
 	"fmt"
+	"github/MaysHroub/gator/internal/database"
 	"github/MaysHroub/gator/internal/gatorapi"
 	"github/MaysHroub/gator/internal/repository"
 	"html"
+	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 const timeout = 10 * time.Second
@@ -69,11 +74,42 @@ func ScrapeFeeds(db repository.Repository) error {
 		return err
 	}
 
-	err = savePosts(rssFeed)
+	err = savePosts(rssFeed, db, feed.ID)
 
 	return err 
 }
 
-func savePosts(rssFeed *RSSFeed) error {
+func savePosts(rssFeed *RSSFeed, db repository.Repository, feedID uuid.UUID) error {
+	ctx := context.Background()
+	for _, item := range rssFeed.Channel.Items {
+		parsedPubDate, err := parsePublishDate(item.PubDate)
+		if err != nil {
+			return err
+		}
+		createPostParams := database.CreatePostParams {
+			ID: uuid.New(),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			Title: item.Title,
+			Description: sql.NullString{String: item.Description, Valid: true},
+			Url: item.Link,
+			PublishedAt: sql.NullTime{Time: parsedPubDate, Valid: !parsedPubDate.IsZero()},
+			FeedID: feedID,
+		}
+		_, err = db.CreatePost(ctx, createPostParams)
+		if err == nil {
+			continue
+		}
+		if strings.Contains(err.Error(), "unique constraint") && strings.Contains(err.Error(), "posts_url_key") {
+			continue // ignore the error
+		}
+		return err
+	}
 	return nil 
+}
+
+func parsePublishDate(pubDate string) (time.Time, error) {
+	layout := "Mon, 02 Jan 2006 15:04:05 MST"
+	parsedPubDate, err := time.Parse(layout, pubDate)
+	return parsedPubDate, err
 }
