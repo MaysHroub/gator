@@ -8,6 +8,7 @@ CREATE TABLE posts (
     description TEXT,
     published_at TIMESTAMP,
     feed_id UUID NOT NULL REFERENCES feeds (id)
-)
+);
+
 -- +goose Down
 DROP TABLE posts;

@@ -89,8 +89,11 @@ func HandleAgg(st *state, cmd command) error {
 	}
 	fmt.Printf("Collecting feeds every %v\n", timeBetweenReqs)
 	ticker := time.NewTicker(timeBetweenReqs)
-	for ; ; <- ticker.C {
-		rss.ScrapeFeeds(st.db)
+	for ; ; <-ticker.C {
+		err = rss.ScrapeFeeds(st.db)
+		if err != nil {
+			return err
+		}
 	}
 }
 
@@ -188,7 +191,7 @@ func HandleShowAllFeedFollowsForUser(st *state, cmd command, user database.User)
 
 	if len(res) == 0 {
 		fmt.Printf("no follow feeds for user %s\n", username)
-		return nil 
+		return nil
 	}
 
 	fmt.Printf("Followed feeds of user %s:\n", username)
@@ -213,13 +216,13 @@ func HandleUnfollowFeedByURL(st *state, cmd command, user database.User) error {
 		return err
 	}
 	fmt.Printf("you no longer follow feed of URL %s\n", feedURL)
-	return nil 
+	return nil
 }
 
 func HandleBrowsePosts(st *state, cmd command, user database.User) error {
 	const defaultLimit = 2
 	limit := defaultLimit
-	var err error 
+	var err error
 	if len(cmd.args) > 0 {
 		limit, err = strconv.Atoi(cmd.args[0])
 		if err != nil {
@@ -227,14 +230,14 @@ func HandleBrowsePosts(st *state, cmd command, user database.User) error {
 		}
 	}
 	posts, err := st.db.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
-		Name: user.Name,
+		Name:  user.Name,
 		Limit: int32(limit),
 	})
 	if err != nil {
 		return err
 	}
-	for _, post := range posts {
-		fmt.Println(post)
+	for i, post := range posts {
+		fmt.Printf("Post #%v\nTitle: %s\nDescription: %s\nLink: %s\n\n", i+1, post.Title, post.Description.String, post.Url)
 	}
 	return nil
 }

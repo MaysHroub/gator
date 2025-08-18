@@ -21,7 +21,7 @@ SELECT
 FROM
     posts p
     JOIN feed_follows ff ON ff.feed_id=p.feed_id
-    JOIN users u ON u.user_id=ff.user_id
+    JOIN users u ON u.id=ff.user_id
 WHERE
     u.name=$1
 LIMIT
