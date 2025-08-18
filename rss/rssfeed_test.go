@@ -1,12 +1,14 @@
 package rss
 
 import (
+	"database/sql"
 	"fmt"
 	"github/MaysHroub/gator/internal/database"
 	"github/MaysHroub/gator/internal/repository"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -93,4 +95,48 @@ func TestScrapeFeeds(t *testing.T) {
 
 	mockDB.AssertCalled(t, "GetNextFeedToFetch", mock.Anything)
 	mockDB.AssertCalled(t, "MarkFeedFetched", mock.Anything, feedID)
+}
+
+func TestSavePosts_UniquePostsURL(t *testing.T) {
+	dummyRSSFeed := &RSSFeed{
+		Channel: struct {
+			Title       string    `xml:"title"`
+			Link        string    `xml:"link"`
+			Description string    `xml:"description"`
+			Items       []RSSItem `xml:"item"`
+		}{
+			Title:       "RSS Feed Example",
+			Link:        "https://www.example.com",
+			Description: "This is an example RSS feed",
+			Items: []RSSItem{
+				{
+					Title:       "First Article",
+					Link:        "https://www.example.com/article1",
+					Description: "This is the content of the first article.",
+					PubDate:     "Mon, 06 Sep 2021 12:00:00 GMT",
+				},
+			},
+		},
+	}
+
+	mockDB := repository.MockRepository{}
+	ctx := mock.Anything
+	feedID := uuid.New()
+	pubDateStr1 := "Tue, 07 Sep 2021 14:30:00 GMT"
+	layout := "Mon, 02 Jan 2006 15:04:05 MST"
+	parsedTime1, _ := time.Parse(layout, pubDateStr1)
+
+	paramMatcher := database.CreatePostParams{
+		Title: "First Article",
+		Description: sql.NullString{String: "Here's the content of the first article.", Valid: true},
+		Url: "https://www.example.com/article1",
+		PublishedAt: sql.NullTime{Time: parsedTime1, Valid: true},
+		FeedID: feedID,
+	}
+	mockDB.On("CreatePost", ctx, paramMatcher).Return(database.Post{}, nil)
+
+	err := savePosts(dummyRSSFeed, &mockDB, feedID)
+	require.NoError(t, err)
+
+	mockDB.AssertCalled(t, "CreatePost", ctx, paramMatcher)
 }

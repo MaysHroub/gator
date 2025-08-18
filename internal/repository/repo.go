@@ -13,12 +13,17 @@ type Repository interface {
 	GetUserByName(ctx context.Context, name string) (database.User, error)
 	DeleteAllUsers(ctx context.Context) error
 	GetNamesOfAllUsers(ctx context.Context) ([]string, error)
+	
 	CreateFeed(ctx context.Context, arg database.CreateFeedParams) (database.Feed, error)
 	GetAllFeeds(ctx context.Context) ([]database.GetAllFeedsRow, error)
 	GetFeedByURL(ctx context.Context, url string) (database.Feed, error)
+	GetNextFeedToFetch(ctx context.Context) (database.GetNextFeedToFetchRow, error)
+	MarkFeedFetched(ctx context.Context, id uuid.UUID) error
+	
 	CreateFeedFollow(ctx context.Context, arg database.CreateFeedFollowParams) ([]database.CreateFeedFollowRow, error)
 	GetFeedFollowsForUser(ctx context.Context, name string) ([]database.GetFeedFollowsForUserRow, error)
 	DeleteFeedFollowByUserAndURL(ctx context.Context, arg database.DeleteFeedFollowByUserAndURLParams) error 
-	GetNextFeedToFetch(ctx context.Context) (database.GetNextFeedToFetchRow, error)
-	MarkFeedFetched(ctx context.Context, id uuid.UUID) error
+
+	CreatePost(ctx context.Context, arg database.CreatePostParams) (database.Post, error)
+	GetPostsForUser(ctx context.Context, arg database.GetPostsForUserParams) ([]database.Post, error)
 }

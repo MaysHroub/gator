@@ -71,3 +71,13 @@ func (mk *MockRepository) MarkFeedFetched(ctx context.Context, id uuid.UUID) err
 	args := mk.Called(ctx, id)
 	return args.Error(0)
 }
+
+func (mk *MockRepository) CreatePost(ctx context.Context, arg database.CreatePostParams) (database.Post, error) {
+	args := mk.Called(ctx, arg)
+	return args.Get(0).(database.Post), args.Error(1)
+}
+
+func (mk *MockRepository) GetPostsForUser(ctx context.Context, arg database.GetPostsForUserParams) ([]database.Post, error) {
+	args := mk.Called(ctx, arg)
+	return args.Get(0).([]database.Post), args.Error(1)
+}

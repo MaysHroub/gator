@@ -69,12 +69,11 @@ func ScrapeFeeds(db repository.Repository) error {
 		return err
 	}
 
-	fmt.Printf("Items of %s with link %s:\n", rssFeed.Channel.Title, rssFeed.Channel.Link)
+	err = savePosts(rssFeed)
 
-	for i, item := range rssFeed.Channel.Items {
-		fmt.Printf("%v. %s\n", i+1, item.Title)
-	}
-	fmt.Println()
+	return err 
+}
 
+func savePosts(rssFeed *RSSFeed) error {
 	return nil 
 }
