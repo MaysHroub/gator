@@ -53,7 +53,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"login <username>",
 		"Logs in a user to the CLI.",
 		"mhroub",
-		[]string{"login alice", "login bob"},
+		[]string{"gator login alice", "gator login bob"},
 		cmd.HandleLogin,
 	))
 
@@ -62,7 +62,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"register <username>",
 		"Registers a user and logs them in immediately.",
 		"mhroub",
-		[]string{"register alice"},
+		[]string{"gator register alice"},
 		cmd.HandleRegister,
 	))
 
@@ -71,7 +71,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"users",
 		"Displays all registered users with '(current)' next to the logged-in user.",
 		"mhroub",
-		[]string{"users"},
+		[]string{"gator users"},
 		cmd.HandleListAllNames,
 	))
 
@@ -80,16 +80,16 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"reset",
 		"Deletes all registered users.",
 		"mhroub",
-		[]string{"reset"},
+		[]string{"gator reset"},
 		cmd.HandleResetUsers,
 	))
 
 	commands.Register("agg", cmd.NewCommandInfo(
 		"agg",
 		"agg",
-		"Launches the feed aggregator in the background to fetch feeds and save posts in the database.",
+		"Launches the feed aggregator to fetch feeds and save posts in the database. You can run this task in the background by adding & at the end of the command. If this command is running in the foreground, you can stop it by typing Ctrl+c.",
 		"mhroub",
-		[]string{"agg"},
+		[]string{"gator agg", "gator agg & (to make it run in the background)"},
 		cmd.HandleAgg,
 	))
 
@@ -98,7 +98,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"addfeed <feed-url>",
 		"Adds a feed to the database. The user who adds it will be marked as the creator and automatically follow the feed.",
 		"mhroub",
-		[]string{"addfeed https://example.com/rss"},
+		[]string{"gator addfeed https://example.com/rss"},
 		cmd.MiddlewareLoggedIn(cmd.HandleAddFeed),
 	))
 
@@ -107,7 +107,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"feeds",
 		"Displays all feeds added to the database.",
 		"mhroub",
-		[]string{"feeds"},
+		[]string{"gator feeds"},
 		cmd.HandleShowAllFeeds,
 	))
 
@@ -116,7 +116,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"follow <feed-url>",
 		"Follows a feed for the currently logged-in user.",
 		"mhroub",
-		[]string{"follow https://example.com/rss"},
+		[]string{"gator follow https://example.com/rss"},
 		cmd.MiddlewareLoggedIn(cmd.HandleFollowFeedByURL),
 	))
 
@@ -125,7 +125,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"unfollow <feed-url>",
 		"Unfollows a feed for the currently logged-in user.",
 		"mhroub",
-		[]string{"unfollow https://example.com/rss"},
+		[]string{"gator unfollow https://example.com/rss"},
 		cmd.MiddlewareLoggedIn(cmd.HandleUnfollowFeedByURL),
 	))
 
@@ -134,7 +134,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"following [username]",
 		"Displays all feeds followed by the given username. If omitted, shows feeds followed by the currently logged-in user.",
 		"mhroub",
-		[]string{"following", "following alice"},
+		[]string{"gator following", "gator following alice"},
 		cmd.MiddlewareLoggedIn(cmd.HandleShowAllFeedFollowsForUser),
 	))
 
@@ -143,7 +143,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"browse [limit]",
 		"Displays the latest posts. If limit is not provided, shows 2 posts. Each post shows title, description, and link.",
 		"mhroub",
-		[]string{"browse", "browse 5"},
+		[]string{"gator browse", "gator browse 5"},
 		cmd.MiddlewareLoggedIn(cmd.HandleBrowsePosts),
 	))
 
@@ -152,7 +152,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"man [command]",
 		"Displays the manual page of the specified command. If no command is provided, it explains how to use 'man'.",
 		"mhroub",
-		[]string{"man", "man users", "man feeds"},
+		[]string{"gator man", "gator man users"},
 		cmd.MiddlewareCommands(cmd.HandleShowManPage, commands),
 	))
 
@@ -161,7 +161,7 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 		"cmnds",
 		"Displays all commands for this CLI tool.",
 		"mhroub",
-		[]string{"commands"},
+		[]string{"gator cmnds"},
 		cmd.MiddlewareCommands(cmd.HandleShowAllCommands, commands),
 	))
 }
