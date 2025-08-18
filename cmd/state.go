@@ -5,14 +5,14 @@ import (
 	"github/MaysHroub/gator/internal/repository"
 )
 
-type state struct {
+type State struct {
 	cfg config.ConfigManager
 	db  repository.Repository
 }
 
-func NewState(cfgMngr config.ConfigManager, db repository.Repository) *state {
-	return &state{
-		cfg:    cfgMngr,
-		db: db,
+func NewState(cfgMngr config.ConfigManager, db repository.Repository) *State {
+	return &State{
+		cfg: cfgMngr,
+		db:  db,
 	}
 }

@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func HandleLogin(st *state, cmd command) error {
+func HandleLogin(st *State, cmd Command) error {
 	if len(cmd.args) == 0 {
 		return fmt.Errorf("no enough args for %s; require username", cmd.name)
 	}
@@ -30,7 +30,7 @@ func HandleLogin(st *state, cmd command) error {
 	return nil
 }
 
-func HandleRegister(st *state, cmd command) error {
+func HandleRegister(st *State, cmd Command) error {
 	if len(cmd.args) == 0 {
 		return fmt.Errorf("no enough args for %s; require username", cmd.name)
 	}
@@ -55,7 +55,7 @@ func HandleRegister(st *state, cmd command) error {
 	return nil
 }
 
-func HandleResetUsers(st *state, cmd command) error {
+func HandleResetUsers(st *State, cmd Command) error {
 	err := st.db.DeleteAllUsers(context.Background())
 	if err != nil {
 		return err
@@ -64,7 +64,7 @@ func HandleResetUsers(st *state, cmd command) error {
 	return nil
 }
 
-func HandleListAllNames(st *state, cmd command) error {
+func HandleListAllNames(st *State, cmd Command) error {
 	names, err := st.db.GetNamesOfAllUsers(context.Background())
 	if err != nil {
 		return err
@@ -79,7 +79,7 @@ func HandleListAllNames(st *state, cmd command) error {
 	return nil
 }
 
-func HandleAgg(st *state, cmd command) error {
+func HandleAgg(st *State, cmd Command) error {
 	if len(cmd.args) == 0 {
 		return fmt.Errorf("no enough args for %s; require time between requests", cmd.name)
 	}
@@ -97,7 +97,7 @@ func HandleAgg(st *state, cmd command) error {
 	}
 }
 
-func HandleAddFeed(st *state, cmd command, user database.User) error {
+func HandleAddFeed(st *State, cmd Command, user database.User) error {
 	if len(cmd.args) < 2 {
 		return fmt.Errorf("no enough args for %s; require feed name and URL", cmd.name)
 	}
@@ -136,7 +136,7 @@ func HandleAddFeed(st *state, cmd command, user database.User) error {
 	return nil
 }
 
-func HandleShowAllFeeds(st *state, cmd command) error {
+func HandleShowAllFeeds(st *State, cmd Command) error {
 	rows, err := st.db.GetAllFeeds(context.Background())
 	if err != nil {
 		return err
@@ -148,7 +148,7 @@ func HandleShowAllFeeds(st *state, cmd command) error {
 	return nil
 }
 
-func HandleFollowFeedByURL(st *state, cmd command, user database.User) error {
+func HandleFollowFeedByURL(st *State, cmd Command, user database.User) error {
 	if len(cmd.args) < 1 {
 		return fmt.Errorf("no enough args for %s; require feed URL", cmd.name)
 	}
@@ -176,7 +176,7 @@ func HandleFollowFeedByURL(st *state, cmd command, user database.User) error {
 	return nil
 }
 
-func HandleShowAllFeedFollowsForUser(st *state, cmd command, user database.User) error {
+func HandleShowAllFeedFollowsForUser(st *State, cmd Command, user database.User) error {
 	var username string
 	if len(cmd.args) == 0 {
 		username = user.Name
@@ -203,7 +203,7 @@ func HandleShowAllFeedFollowsForUser(st *state, cmd command, user database.User)
 	return nil
 }
 
-func HandleUnfollowFeedByURL(st *state, cmd command, user database.User) error {
+func HandleUnfollowFeedByURL(st *State, cmd Command, user database.User) error {
 	if len(cmd.args) < 1 {
 		return fmt.Errorf("no enough args for %s; require feed URL", cmd.name)
 	}
@@ -219,7 +219,7 @@ func HandleUnfollowFeedByURL(st *state, cmd command, user database.User) error {
 	return nil
 }
 
-func HandleBrowsePosts(st *state, cmd command, user database.User) error {
+func HandleBrowsePosts(st *State, cmd Command, user database.User) error {
 	const defaultLimit = 2
 	limit := defaultLimit
 	var err error
@@ -242,7 +242,7 @@ func HandleBrowsePosts(st *state, cmd command, user database.User) error {
 	return nil
 }
 
-func doesUserExist(st *state, name string) bool {
+func doesUserExist(st *State, name string) bool {
 	usr, err := st.db.GetUserByName(context.Background(), name)
 	if err != nil {
 		return false
@@ -253,8 +253,8 @@ func doesUserExist(st *state, name string) bool {
 	return false
 }
 
-func MiddlewareLoggedIn(handler func(st *state, cmd command, user database.User) error) func(st *state, cmd command) error {
-	return func(st *state, cmd command) error {
+func MiddlewareLoggedIn(handler func(st *State, cmd Command, user database.User) error) func(st *State, cmd Command) error {
+	return func(st *State, cmd Command) error {
 		user, err := st.db.GetUserByName(context.Background(), st.cfg.GetCurrentUsername())
 		if err != nil {
 			return err

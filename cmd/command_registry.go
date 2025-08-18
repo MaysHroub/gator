@@ -2,25 +2,24 @@ package cmd
 
 import "fmt"
 
-type commands struct {
-	cmds map[string]func(*state, command) error
+type Commands struct {
+	cmds map[string]commandInfo
 }
 
-func NewCommands() commands {
-	mp := make(map[string]func(*state, command) error)
-	return commands{
-		cmds: mp,
+func NewCommands() Commands {
+	return Commands{
+		cmds: make(map[string]commandInfo),
 	}
 }
 
-func (c *commands) Register(cmdName string, cmdHandler func(*state, command) error) {
-	c.cmds[cmdName] = cmdHandler
+func (c *Commands) Register(cmdName string, cmdInfo commandInfo) {
+	c.cmds[cmdName] = cmdInfo
 }
 
-func (c *commands) Run(st *state, cmd command) error {
-	handler, exists := c.cmds[cmd.name]
+func (c *Commands) Run(st *State, cmd Command) error {
+	cmdDetails, exists := c.cmds[cmd.name]
 	if !exists {
 		return fmt.Errorf("no such command exists: %s", cmd.name)
 	}
-	return handler(st, cmd)
+	return cmdDetails.handler(st, cmd)
 }

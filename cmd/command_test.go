@@ -37,15 +37,15 @@ func TestStateCreationWithConfig_ValidCreation(t *testing.T) {
 func TestCommandsRegistryAndRun_ValidRegistryAndRun(t *testing.T) {
 	cmdName := "login"
 	called := false
-	cmdHandler := func(st *state, cmd command) error {
+	cmdHandler := func(st *State, cmd Command) error {
 		called = true
 		return nil
 	}
 
 	commands := NewCommands()
-	commands.Register(cmdName, cmdHandler)
+	commands.Register(cmdName, NewCommandInfo(cmdName, "", "", "", nil, cmdHandler))
 
-	err := commands.Run(&state{}, command{name: cmdName})
+	err := commands.Run(&State{}, Command{name: cmdName})
 	require.NoError(t, err)
 
 	assert.Equal(t, true, called)
@@ -62,7 +62,7 @@ func TestLoginHandler_ValidLogin(t *testing.T) {
 
 	st := NewState(&mockConfig, &mockDB)
 
-	cmd := command{
+	cmd := Command{
 		name: "login",
 		args: []string{name},
 	}
@@ -84,7 +84,7 @@ func TestLoginHandler_InvalidLogin_NoNameExists(t *testing.T) {
 	mockConfig := config.MockConfigService{}
 
 	st := NewState(&mockConfig, &mockDB)
-	cmd := command{
+	cmd := Command{
 		name: "login",
 		args: []string{name},
 	}
@@ -122,7 +122,7 @@ func TestRegisterHandler_ValidRegister(t *testing.T) {
 
 	st := NewState(&mockConfig, &mockDB)
 
-	cmd := command{
+	cmd := Command{
 		name: "register",
 		args: []string{name},
 	}
@@ -156,7 +156,7 @@ func TestRegisterHandler_InvalidRegister_NameExists(t *testing.T) {
 
 	st := NewState(nil, &mockDB)
 
-	cmd := command{
+	cmd := Command{
 		name: "register",
 		args: []string{name},
 	}
@@ -178,7 +178,7 @@ func TestResetCurrentUsernamesHandler(t *testing.T) {
 
 	st := NewState(nil, &mockDB)
 
-	cmd := command{
+	cmd := Command{
 		name: "reset",
 	}
 
@@ -196,7 +196,7 @@ func TestListUsersNamesHandlers(t *testing.T) {
 	mockConfig.On("GetCurrentUsername").Return("mays")
 
 	st := NewState(&mockConfig, &mockDB)
-	cmd := command{
+	cmd := Command{
 		name: "users",
 	}
 
@@ -229,7 +229,7 @@ func TestAddFeedHandler_ValidAddition(t *testing.T) {
 
 	st := NewState(nil, &mockDB)
 
-	cmd := command{
+	cmd := Command{
 		name: "addfeed",
 		args: []string{feedName, feedURL},
 	}
@@ -269,7 +269,7 @@ func TestShowAllFeedsHandler(t *testing.T) {
 	mockDB.On("GetAllFeeds", mock.Anything).Return(rows, nil)
 
 	st := NewState(nil, &mockDB)
-	cmd := command{
+	cmd := Command{
 		name: "feeds",
 	}
 
@@ -300,7 +300,7 @@ func TestFollowFeedHandler_ValidFollowing(t *testing.T) {
 	mockDB.On("CreateFeedFollow", mock.Anything, createFeedFollowParamsMatcher).Return([]database.CreateFeedFollowRow{}, nil)
 
 	st := NewState(nil, &mockDB)
-	cmd := command{name: "follow", args: []string{feedURL}}
+	cmd := Command{name: "follow", args: []string{feedURL}}
 
 	err := HandleFollowFeedByURL(st, cmd, user)
 	require.NoError(t, err)
@@ -330,7 +330,7 @@ func TestGetFeedFollowForUser_UsernameGivenInCmndArgs(t *testing.T) {
 	mockDB.On("GetFeedFollowsForUser", mock.Anything, user.Name).Return(feedFollowRecords, nil)
 
 	st := NewState(nil, &mockDB)
-	cmd := command{name: "following", args: []string{user.Name}}
+	cmd := Command{name: "following", args: []string{user.Name}}
 
 	err := HandleShowAllFeedFollowsForUser(st, cmd, user)
 	require.NoError(t, err)
@@ -359,7 +359,7 @@ func TestGetFeedFollowForUser_NoUsernameGivenInCmndArgs(t *testing.T) {
 	mockDB.On("GetFeedFollowsForUser", mock.Anything, user.Name).Return(feedFollowRecords, nil)
 
 	st := NewState(nil, &mockDB)
-	cmd := command{name: "following"}
+	cmd := Command{name: "following"}
 
 	err := HandleShowAllFeedFollowsForUser(st, cmd, user)
 	require.NoError(t, err)
@@ -381,7 +381,7 @@ func TestUnfollowFeedHandler(t *testing.T) {
 	mockDB.On("DeleteFeedFollowByUserAndURL", mock.Anything, params).Return(nil)
 
 	st := NewState(nil, &mockDB)
-	cmd := command{name: "unfollow", args: []string{feedURL}}
+	cmd := Command{name: "unfollow", args: []string{feedURL}}
 
 	err := HandleUnfollowFeedByURL(st, cmd, user)
 	require.NoError(t, err)
@@ -393,29 +393,29 @@ func TestBrowseHandler(t *testing.T) {
 	user := database.User{
 		Name: "mays",
 	}
-	cmd := command{
+	cmd := Command{
 		name: "browse",
 	}
 	defaultLimit := 2
 	mockDB := repository.MockRepository{}
 	mockDB.On(
-		"GetPostsForUser", 
-		mock.Anything, 
+		"GetPostsForUser",
+		mock.Anything,
 		database.GetPostsForUserParams{Name: user.Name, Limit: int32(defaultLimit)}).
-	Return(
-		[]database.Post{
-			{
-				Url: "https://example.com/post1",
-			},
-			{
-				Url: "https://example.com/post2",
-			},
-		}, nil)
-	
+		Return(
+			[]database.Post{
+				{
+					Url: "https://example.com/post1",
+				},
+				{
+					Url: "https://example.com/post2",
+				},
+			}, nil)
+
 	st := NewState(nil, &mockDB)
-	
+
 	err := HandleBrowsePosts(st, cmd, user)
 	require.NoError(t, err)
-	
+
 	mockDB.AssertCalled(t, "GetPostsForUser", mock.Anything, database.GetPostsForUserParams{Name: user.Name, Limit: int32(defaultLimit)})
 }
