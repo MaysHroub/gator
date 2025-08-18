@@ -106,7 +106,7 @@ This is an example of how you might use Gator:
 gator register mays-alreem
 gator addfeed https://techcrunch.com/feed/
 gator follow https://news.ycombinator.com/rss
-gator agg
+gator agg 20s
 ```
 
 
