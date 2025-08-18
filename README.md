@@ -23,7 +23,44 @@ gator man <command-name>
 ```
 
 I won’t spoil all the supported commands here—check them yourself :)
+<br>
+But here's a thing:
 
+### The `agg` command runs in the foreground
+
+To stop it, use `Ctrl + c` keys.
+
+To make it run in the background, there are two ways:
+
+#### 1. Quick and Dirty (temporary background run)
+Just append `&` at the end:
+```bash
+gator agg 10s &
+```
+
+To kill it:
+
+1. Get its job number from the output of `jobs` command
+2. Bring it to the foreground `fg %<job-number>`
+3. Kill it with `kill %<job-number>` 
+
+Or just get its process ID and run `kill <PID>`.
+
+Nevertheless, it stops if you close the termainal.
+
+
+#### 2. More reliable (survives terminal close)
+
+Use `nohup`:
+```bash
+nohup gator agg > agg.log 2>&1 &
+```
+
+This detaches the process from the terminal and the output will go into `agg.log`.
+
+The process keeps running even if you log out or close the terminal.
+
+You can kill it later with `kill <PID>`.
 
 ## Requirements
 
