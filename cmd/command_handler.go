@@ -253,7 +253,7 @@ func HandleShowManPage(commands Commands, cmd Command) error {
 	cmdInfo := commands.cmds[cmdNameArg]
 
 	fmt.Printf("NAME\n")
-	fmt.Printf("    %s - %s\n\n", cmdInfo.name, cmdInfo.synopsis)
+	fmt.Printf("    %s\n\n", cmdInfo.name)
 
 	fmt.Printf("SYNOPSIS\n")
 	fmt.Printf("    %s\n\n", cmdInfo.synopsis)
@@ -275,6 +275,14 @@ func HandleShowManPage(commands Commands, cmd Command) error {
 		fmt.Println()
 	}
 
+	return nil
+}
+
+func HandleShowAllCommands(commands Commands, cmd Command) error {
+	for _, cmdInfo := range commands.cmds {
+		fmt.Printf("%s: %s\n", cmdInfo.name, cmdInfo.description)
+	}
+	fmt.Println("\nuse 'man [command-name]' command to see how to use each one.")
 	return nil
 }
 

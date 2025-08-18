@@ -148,12 +148,21 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 	))
 
 	commands.Register("man", cmd.NewCommandInfo(
-		"man",                      
-		"man [command]",           
-		"Displays the manual page of the specified command. If no command is provided, it explains how to use 'man'.", 
-		"mhroub",               
+		"man",
+		"man [command]",
+		"Displays the manual page of the specified command. If no command is provided, it explains how to use 'man'.",
+		"mhroub",
 		[]string{"man", "man users", "man feeds"},
-		cmd.MiddlewareCommands(cmd.HandleShowManPage, commands),                 
+		cmd.MiddlewareCommands(cmd.HandleShowManPage, commands),
+	))
+
+	commands.Register("cmnds", cmd.NewCommandInfo(
+		"cmnds",
+		"cmnds",
+		"Displays all commands for this CLI tool.",
+		"mhroub",
+		[]string{"commands"},
+		cmd.MiddlewareCommands(cmd.HandleShowAllCommands, commands),
 	))
 }
 
