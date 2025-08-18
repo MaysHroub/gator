@@ -86,10 +86,10 @@ func RegisterCommands(commands cmd.Commands, st *cmd.State, cmnd cmd.Command) {
 
 	commands.Register("agg", cmd.NewCommandInfo(
 		"agg",
-		"agg",
-		"Launches the feed aggregator to fetch feeds and save posts in the database. You can run this task in the background by adding & at the end of the command. If this command is running in the foreground, you can stop it by typing Ctrl+c.",
+		"agg <time-between-requests>",
+		"Launches the feed aggregator to fetch feeds (every given amount of time) and save posts in the database. You can run this task in the background by adding & at the end of the command. If this command is running in the foreground, you can stop it by typing Ctrl+c.",
 		"mhroub",
-		[]string{"gator agg", "gator agg & (to make it run in the background)"},
+		[]string{"gator agg 10s", "gator agg 5s & (to make it run in the background)"},
 		cmd.HandleAgg,
 	))
 
