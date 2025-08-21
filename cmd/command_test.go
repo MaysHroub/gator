@@ -55,6 +55,7 @@ func TestLoginHandler_ValidLogin(t *testing.T) {
 	name := "mays"
 	mockConfig := config.MockConfigService{}
 	mockConfig.On("SetCurrentUsername", name).Return()
+	mockConfig.On("GetCurrentUsername").Return("")
 	mockConfig.On("Save").Return(nil)
 
 	mockDB := repository.MockRepository{}
@@ -71,6 +72,7 @@ func TestLoginHandler_ValidLogin(t *testing.T) {
 	require.NoError(t, err)
 
 	mockConfig.AssertCalled(t, "SetCurrentUsername", name)
+	mockConfig.AssertCalled(t, "GetCurrentUsername")
 	mockConfig.AssertCalled(t, "Save")
 	mockDB.AssertCalled(t, "GetUserByName", mock.Anything, name)
 }

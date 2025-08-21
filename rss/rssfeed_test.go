@@ -68,12 +68,6 @@ func TestScrapeFeeds(t *testing.T) {
 			<description>This is the content of the first article.</description>
 			<pubDate>Mon, 06 Sep 2021 12:00:00 GMT</pubDate>
 		</item>
-		<item>
-			<title>Second Article</title>
-			<link>https://www.example.com/article2</link>
-			<description>Here's the content of the second article.</description>
-			<pubDate>Tue, 07 Sep 2021 14:30:00 GMT</pubDate>
-		</item>
 		</channel>
 		</rss>`
 
@@ -89,12 +83,20 @@ func TestScrapeFeeds(t *testing.T) {
 		Url: svr.URL,
 	}, nil)
 	mockDB.On("MarkFeedFetched", mock.Anything, feedID).Return(nil)
+	paramsMatcher := mock.MatchedBy(func(p database.CreatePostParams) bool {
+		return p.Title == "First Article" &&
+				p.Description == sql.NullString{String: "This is the content of the first article.", Valid: true} &&
+				p.Url == "https://www.example.com/article1" &&
+				p.FeedID == feedID
+	})
+	mockDB.On("CreatePost", mock.Anything, paramsMatcher).Return(database.Post{}, nil)
 
 	err := ScrapeFeeds(&mockDB)
 	require.NoError(t, err) 
 
 	mockDB.AssertCalled(t, "GetNextFeedToFetch", mock.Anything)
 	mockDB.AssertCalled(t, "MarkFeedFetched", mock.Anything, feedID)
+	mockDB.AssertCalled(t, "CreatePost", mock.Anything, paramsMatcher)
 }
 
 func TestSavePosts_UniquePostsURL(t *testing.T) {
